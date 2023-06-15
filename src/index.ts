@@ -1,7 +1,13 @@
-import { greetUser } from '$utils/greet';
+import { initEvents } from '$utils/events';
+import { initForm } from '$utils/formBuilder';
+import { Output } from '$utils/output';
+import { Form } from '$utils/form';
 
 window.Webflow ||= [];
+window.Output = new Output();
+window.Form = new Form();
 window.Webflow.push(() => {
-  const name = 'John Doe';
-  greetUser(name);
+  console.log('Mirato Tool Startup');
+  initForm();
+  initEvents();
 });
