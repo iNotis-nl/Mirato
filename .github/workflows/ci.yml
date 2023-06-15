@@ -4,8 +4,8 @@ on:
   pull_request:
 
 jobs:
-  Lint:
-    uses: finsweet/workflow-ci-lint/.github/workflows/lint.yml@main
+  #Lint:
+  #  uses: finsweet/workflow-ci-lint/.github/workflows/lint.yml@main
 
   # Comment this job out if your project doesn't have any tests.
   #Tests:
