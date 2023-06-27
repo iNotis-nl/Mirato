@@ -6,11 +6,11 @@ import {Div} from "$utils/html";
 export class MetrageItemRow {
   title: string;
   qty: number | string | null;
-  m2: number | string | null;
+  m2: number | string | null | undefined;
   style: string;
   classes: string[];
 
-  constructor(title: string, qty: number | string | null, m2: number | string | null, style: string = 'default', classes: string[] = []) {
+  constructor(title: string, qty: number | string | null, m2: number | string | null | undefined, style: string = 'default', classes: string[] = []) {
     this.title = title;
     this.qty = qty;
     this.m2 = m2;
@@ -49,12 +49,16 @@ export class MetrageStack {
     this.stack = args;
   }
 
-  build() {
-    const stackDiv = Div.build(['stack']);
-    this.stack.forEach(function (itemRow) {
+  build(): HTMLDivElement {
+    const stackDiv: HTMLDivElement = Div.build(['stack']);
+    this.stack.forEach(function (itemRow: MetrageItemRow) {
       stackDiv.append(itemRow.build());
     });
     return stackDiv;
+  }
+
+  append(itemRow: MetrageItemRow): void {
+    this.stack.push(itemRow);
   }
 }
 
