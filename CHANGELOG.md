@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.3.0
+
+### Minor Changes
+
+- e24e740: Some more refactoring
+
 ## 0.2.0
 
 ### Minor Changes
