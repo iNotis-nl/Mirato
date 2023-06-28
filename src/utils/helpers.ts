@@ -25,7 +25,12 @@ export class Faculty {
   public active: boolean;
   public readonly callbackFn;
 
-  constructor(name: string, active: boolean, callbackForM2: (numEmployees:number) => number) {
+  constructor(name: string,
+              active: boolean,
+              callbackForM2: (numEmployees: number,
+                              subtotalM3: number,
+                              numWorkstations: number) => number
+  ) {
     this.name = name;
     this.active = active;
     this.callbackFn = callbackForM2;

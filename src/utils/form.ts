@@ -2,13 +2,14 @@ import {Department} from "$utils/department";
 import {DepartmentDropdown} from "$utils/departmentDropdown";
 import {Anchor} from "$utils/html";
 import {DropDownGroup} from "$utils/factory";
-import {ExtraRoomsLayout, FacultiesLayout, OfficeLayout} from "$utils/variables";
+import {ExtraRoomsLayout, FacultiesLayout, OfficeLayout, OtherRoomsLayout} from "$utils/variables";
 
 export class Form {
   private _officeLayout: OfficeLayout | null = null;
   globalDepartment: Department;
   departments: Array<Department> = new Array<Department>();
   facultiesLayout: FacultiesLayout;
+  otherRoomsLayout: OtherRoomsLayout;
   extraRoomsLayout: ExtraRoomsLayout;
   ids: Array<string> = new Array<string>();
 
@@ -23,12 +24,13 @@ export class Form {
     this.dropdownGroup = new DropDownGroup();
     this.globalDepartment = new Department();
     this.facultiesLayout = new FacultiesLayout();
+    this.otherRoomsLayout = new OtherRoomsLayout();
     this.extraRoomsLayout = new ExtraRoomsLayout();
     this.addDepartmentBtn = Anchor.build(['button', 'w-button']);
     this.addDepartmentBtn.text = 'Afdeling toevoegen';
   }
 
-  init() {
+  init(): void {
     this.departmentTab = document.getElementById('metrage-tab-content-department') as HTMLDivElement;
     this.departmentTab.innerHTML = '';
     this.globalTab = document.getElementById('metrage-tab-content-global') as HTMLDivElement;
@@ -38,13 +40,17 @@ export class Form {
     this.departmentTab.append(this.dropdownGroup.build());
     this.departmentTab.append(this.addDepartmentBtn);
 
-    let form = document.getElementById('wf-form-metrageTool') as HTMLFormElement;
+    let form: HTMLFormElement = document.getElementById('wf-form-metrageTool') as HTMLFormElement;
     form.append(this.facultiesLayout.build());
+    form.append(this.otherRoomsLayout.build());
     form.append(this.extraRoomsLayout.build());
 
-    this.addDepartmentBtn.addEventListener('click', function () {
-      window.Form?.addDepartment();
-    });
+    this.addDepartmentBtn.removeEventListener('click', this.addDepartmentAction);
+    this.addDepartmentBtn.addEventListener('click', this.addDepartmentAction);
+  }
+
+  addDepartmentAction() {
+    window.Form?.addDepartment();
   }
 
   set officeLayout(value: OfficeLayout | null) {
@@ -58,15 +64,15 @@ export class Form {
 
 
   addDepartment() {
-    let departmentForm = new Department();
-    let departmentDropdown = new DepartmentDropdown(departmentForm);
+    let departmentForm: Department = new Department();
+    let departmentDropdown: DepartmentDropdown = new DepartmentDropdown(departmentForm);
     this.departments.push(departmentForm);
     this.dropdownGroup.append(departmentDropdown.build());
   }
 
   // @ts-ignore
   createId(namespace: string) {
-    let id = namespace + '-' + this.createRandom(5);
+    let id: string = namespace + '-' + this.createRandom(5);
     if (this.ids.indexOf(id) > -1 || document.getElementById(id) !== null) {
       return this.createId(namespace);
     }
@@ -75,7 +81,7 @@ export class Form {
   }
 
   createRandom(length: number) {
-    let rand = crypto.randomUUID().replace(/[^0-9aeiouy]/gi, '');
+    let rand: string = crypto.randomUUID().replace(/[^0-9aeiouy]/gi, '');
     while (rand.length < length) {
       rand = rand + crypto.randomUUID().replace(/[^0-9aeiouy]/gi, '');
     }
