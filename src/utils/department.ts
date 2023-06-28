@@ -43,6 +43,7 @@ export class Department {
   }
 
   build() {
+    this.departmentBody.innerHTML = '';
     this.createNewStack();
     this.currentStack.append(this.inputNumEmployees.build('Aantal medewerkers', 'Dit zijn het aantal medewerkers op deze afdeling'));
     this.currentStack.append(this.inputExpectedGrowth.build('Verwachte groei % in medewerkers in 5 jaar'));

@@ -29,6 +29,13 @@ export class Input {
     return Element.build('input', classList, attributes) as HTMLInputElement;
   }
 }
+export class Img {
+  static build(src: string, classList: Array<string> | null = null, attributes: Object | null = null): HTMLImageElement {
+    attributes = attributes ? attributes : new Object({});
+    attributes = Object.assign(attributes, {'src': src});
+    return Element.build('img', classList, attributes) as HTMLImageElement;
+  }
+}
 
 export class Element {
   static build(tagName: string, classList: Array<string> | null = null, attributes: Object | null = null): HTMLElement {

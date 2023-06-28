@@ -20,12 +20,12 @@ export class DepartmentDropdown {
     this.dropDown = new DropDown();
   }
 
-  build() {
-    const scriptDiv = Div.build(['fs_accordion-2_embed', 'hide', 'w-embed', 'w-script']);
+  build(): HTMLDivElement {
+    const scriptDiv: HTMLDivElement = Div.build(['fs_accordion-2_embed', 'hide', 'w-embed', 'w-script']);
     scriptDiv.innerHTML = '<!-- [Finsweet Attributes] Accordion -->';
     this.dropDown.append(scriptDiv);
 
-    const script = document.createElement('script');
+    const script: HTMLScriptElement = document.createElement('script');
     script.innerText = '(()=>{var t="https://cdn.jsdelivr.net/npm/@finsweet/attributes-accordion@1/accordion.js",e=document.querySelector(`script[src="${t}"]`);(e!=null?e.remove():""),(e=document.createElement("script"),e.async=!0,e.src=t,document.head.append(e));})();';
     scriptDiv.append(script);
 
@@ -40,7 +40,7 @@ export class DepartmentDropdown {
   }
 
   nameChanged(event: KeyboardEvent) {
-    const element = event.target as HTMLInputElement;
+    const element: HTMLInputElement = event.target as HTMLInputElement;
     this.name = String(element.value).substring(0, 1).toUpperCase() + String(element.value).substring(1);
     if (this.name === '') {
       this.name = 'Afdeling';

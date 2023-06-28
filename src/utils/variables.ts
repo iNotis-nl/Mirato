@@ -158,22 +158,95 @@ export class FacultiesLayout {
     return this.defaults;
   }
 
-  totalM2(numEmployees: number): number {
+  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
     let totalM2: number = 0;
     this.defaults.forEach((faculty: Faculty): void => {
       if (faculty.active) {
-        totalM2 += faculty.callbackFn(numEmployees);
+        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
       }
     })
     return totalM2;
   }
 
-  add(faculty: Faculty): void {
-    this.defaults.push(faculty);
-    window.Output?.reset();
+  build(): HTMLDivElement {
+    this.formField.innerHTML = '';
+    this.defaults.forEach((item: Faculty, i: number): void => {
+      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
+      el.onchange = (e: Event): void => {
+        let target: HTMLInputElement = e.target as HTMLInputElement;
+        let active: boolean = target.checked;
+        let index: number = getIndex(el.classList.toString().split(' '));
+        this.defaults[index].active = active;
+        window.Output?.reset();
+      };
+      this.formField.append(el);
+    });
+
+    return this.stack;
+  }
+}
+
+export class OtherRoomsLayout {
+  private name: string = 'Overige ruimtes';
+  private readonly stack: HTMLDivElement;
+  private readonly formField: HTMLDivElement;
+
+  // Default OtherRooms
+  private defaults: Faculty[] = [
+    new Faculty('Aanlandplekken', true, (numEmployees: number, subtotalM3: number, numWorkspaces: number): number => {
+      return numWorkspaces ? Math.ceil(numWorkspaces * 0.5) : 0;
+    }),
+    new Faculty('Loopruimte', true, (numEmployees: number, subtotalM3: number): number => {
+      return subtotalM3 ? Math.ceil(subtotalM3 * 0.14) : 0;
+    }),
+    new Faculty('Serverruimte', true, (numEmployees: number, subtotalM3: number): number => {
+      return subtotalM3 ? Math.ceil(subtotalM3 * 0.01) : 0;
+    }),
+    new Faculty('Lockers', true, (numEmployees: number) => {
+      return Math.ceil(numEmployees * 0.05);
+    }),
+    new Faculty('Repro', true, (numEmployees: number) => {
+      return Math.ceil(numEmployees * 0.20);
+    }),
+    new Faculty('Garderobe', true, (numEmployees: number) => {
+      return Math.ceil(numEmployees * 0.05);
+    }),
+    new Faculty('Toilets', true, (numEmployees: number) => {
+      return Math.ceil(5.5 * Math.ceil(numEmployees / 30));
+    }),
+    new Faculty('MIVA', true, (numEmployees: number) => {
+      return Math.ceil(3.7 * Math.ceil(((numEmployees / 30) * 2) / 10));
+    }),
+    new Faculty('Gridlos', true, (numEmployees: number, subtotalM3: number): number => {
+      return subtotalM3 ? Math.ceil(subtotalM3 * 0.1) : 0;
+    }),
+  ];
+
+  constructor() {
+    this.stack = Div.build(['stack']);
+    let heading: HTMLDivElement = Div.build(['heading-small']);
+    heading.innerText = this.name;
+    this.stack.append(heading);
+    this.formField = Div.build(['form-field']);
+    this.stack.append(this.formField);
+  }
+
+  list(): Faculty[] {
+    return this.defaults;
+  }
+
+  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+    let totalM2: number = 0;
+    this.defaults.forEach((faculty: Faculty): void => {
+      if (faculty.active) {
+        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+      }
+    })
+    return totalM2;
   }
 
   build(): HTMLDivElement {
+    this.formField.innerHTML = '';
     this.defaults.forEach((item: Faculty, i: number): void => {
       const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
       el.onchange = (e: Event): void => {
@@ -196,12 +269,17 @@ export class ExtraRoomsLayout {
   private readonly inputName: HTMLInputElement;
   private readonly inputM2: HTMLInputElement;
   private readonly formButton: HTMLAnchorElement;
+  private readonly formField: HTMLDivElement;
+  private defaults: Faculty[] = [];
 
   constructor() {
     this.stack = Div.build(['stack']);
     let heading: HTMLDivElement = Div.build(['heading-small']);
     heading.innerText = this.name;
     this.stack.append(heading);
+
+    this.formField = Div.build(['form-field']);
+    this.stack.append(this.formField);
 
     let extraRooms: HTMLDivElement = Div.build(['metrage_extra-room']);
     this.stack.append(extraRooms);
@@ -216,16 +294,62 @@ export class ExtraRoomsLayout {
     this.formButton.text = 'Ruimte toevoegen';
     this.formButton.onclick = () => {
       if (this.inputName.value !== '' && this.inputM2.value !== '') {
-        window.Form?.facultiesLayout.add(new Faculty(this.inputName.value, true, () => {
+        this.add(new Faculty(this.inputName.value, true, () => {
           // Fixed value
           return parseInt(this.inputM2.value)
         }));
+        this.inputName.value = '';
+        this.inputM2.value = '';
       }
     };
     extraRooms.append(this.formButton);
   }
 
-  build() {
+  add(faculty: Faculty): void {
+    this.defaults.push(faculty);
+    window.Output?.reset();
+    window.Form?.init();
+  }
+
+  list(): Faculty[] {
+    return this.defaults;
+  }
+
+  hasActive(): boolean {
+    let hasActive: boolean = false;
+    this.defaults.forEach((faculty: Faculty): void => {
+      if (faculty.active) {
+        hasActive = true;
+      }
+    });
+    return hasActive;
+  }
+
+  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+    let totalM2: number = 0;
+    this.defaults.forEach((faculty: Faculty): void => {
+      if (faculty.active) {
+        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+      }
+    })
+    return totalM2;
+  }
+
+
+  build(): HTMLDivElement {
+    this.formField.innerHTML = '';
+    this.defaults.forEach((item: Faculty, i: number): void => {
+      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
+      el.onchange = (e: Event): void => {
+        let target: HTMLInputElement = e.target as HTMLInputElement;
+        let active: boolean = target.checked;
+        let index: number = getIndex(el.classList.toString().split(' '));
+        this.defaults[index].active = active;
+        window.Output?.reset();
+        window.Form?.init();
+      };
+      this.formField.append(el);
+    });
     return this.stack;
   }
 }

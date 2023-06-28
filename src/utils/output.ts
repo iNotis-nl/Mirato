@@ -45,14 +45,20 @@ export class Output {
     const that = this;
 
     let numEmployees: number = 0;
+    let numWorkstations: number = 0;
     let subTotal: number = 0;
     let total: number = 0;
     let averageGrowth: number = 0;
 
+    /////////////////////////////////////////////////////////////
+    //////////////////////// Departments ////////////////////////
+    /////////////////////////////////////////////////////////////
+    console.log('Current mode: ', this._mode);
     if (this._mode === MODE_GLOBAL) {
       // @ts-ignore
       const layout: DepartmentLayout = window.Form.globalDepartment.departmentLayout;
       numEmployees = layout.numEmployees;
+      numWorkstations = layout.numWorkstations;
       // @ts-ignore
       subTotal += window.Form.globalDepartment.departmentLayout.totalDepartmentM2;
       // @ts-ignore
@@ -64,7 +70,9 @@ export class Output {
       // @ts-ignore
       const departments: Department[] = window.Form.departments;
       departments.forEach(function (department: Department): void {
+        console.log('Building department', '"' + department.departmentLayout.name + '"');
         numEmployees += department.departmentLayout.numEmployees;
+        numWorkstations = department.departmentLayout.numWorkstations;
         subTotal += department.departmentLayout.totalDepartmentM2;
         total += department.departmentLayout.totalDepartmentM2WithGrowth;
         averageGrowth += department.departmentLayout.expectedGrowth;
@@ -77,11 +85,11 @@ export class Output {
 
     stack.append(Div.build(['tool-m2_divider']));
 
-    // @ts-ignore
-    subTotal += window.Form?.facultiesLayout.totalM2(numEmployees);
-    // @ts-ignore
-    total += window.Form?.facultiesLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))));
 
+    /////////////////////////////////////////////////////////////
+    ///////////////////////// Faculties /////////////////////////
+    /////////////////////////////////////////////////////////////
+    console.log('Building Faculties');
     let facultiesStack: MetrageStack = new MetrageStack(
       // @ts-ignore
       new MetrageItemRow('Faciliteiten', '', window.Form?.facultiesLayout.totalM2(numEmployees), 'subheader')
@@ -89,21 +97,64 @@ export class Output {
     let facultiesList: Faculty[] = window.Form?.facultiesLayout.list() ?? [];
     facultiesList.forEach((item: Faculty): void => {
       if (item.active) {
-        facultiesStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees)));
+        facultiesStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
       }
     });
-
     stack.append(facultiesStack.build());
-    stack.append(new MetrageStack(
-      new MetrageItemRow('Overige', '', '0', 'subheader'),
-      new MetrageItemRow('Loopruimte', '', '0'),
-      new MetrageItemRow('Gridlos', '', '0'),
-      new MetrageItemRow('Aanlandplekken', '', '0')
-    ).build());
+    // @ts-ignore
+    total += window.Form?.facultiesLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
+    // @ts-ignore
+    subTotal += window.Form?.facultiesLayout.totalM2(numEmployees, subTotal, numWorkstations);
 
+
+    //////////////////////////////////////////////////////////////
+    ///////////////////////// Other Rooms ////////////////////////
+    //////////////////////////////////////////////////////////////
+    console.log('Building Other Rooms');
+    let otherRoomsStack: MetrageStack = new MetrageStack(
+      // @ts-ignore
+      new MetrageItemRow('Overige ruimtes', '', window.Form?.otherRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations), 'subheader')
+    );
+    let otherRoomsList: Faculty[] = window.Form?.otherRoomsLayout.list() ?? [];
+    otherRoomsList.forEach((item: Faculty): void => {
+      if (item.active) {
+        otherRoomsStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
+      }
+    });
+    stack.append(otherRoomsStack.build());
+    // @ts-ignore
+    total += window.Form?.otherRoomsLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
+    // @ts-ignore
+    subTotal += window.Form?.otherRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations);
+
+    //////////////////////////////////////////////////////////////
+    ///////////////////////// Extra Rooms ////////////////////////
+    //////////////////////////////////////////////////////////////
+    console.log('Building Extra Rooms');
+    let extraRoomsList: Faculty[] = window.Form?.extraRoomsLayout.list() ?? [];
+    if (window.Form?.extraRoomsLayout.hasActive()) {
+      let extraRoomsStack: MetrageStack = new MetrageStack(
+        // @ts-ignore
+        new MetrageItemRow('Extra ruimtes', '', window.Form?.extraRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations), 'subheader')
+      );
+      extraRoomsList.forEach((item: Faculty): void => {
+        if (item.active) {
+          extraRoomsStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
+        }
+      });
+      stack.append(extraRoomsStack.build());
+      // @ts-ignore
+      total += window.Form?.extraRoomsLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
+      // @ts-ignore
+      subTotal += window.Form?.extraRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations);
+    }
+
+    ////////////////////////////////////////////////////////////
+    //////////////////// Subtotal & Growth /////////////////////
+    ////////////////////////////////////////////////////////////
+    console.log('Building Subtotal, Growth and Total');
     stack.append(Div.build(['tool-m2_divider']));
     stack.append(new MetrageItemRow('Subtotaal', '', subTotal, 'header').build());
-
 
     if (this._mode === MODE_GLOBAL) {
       // @ts-ignore
@@ -118,7 +169,7 @@ export class Output {
       const departments: Department[] = window.Form.departments;
       departments.forEach(function (department: Department): void {
         stack.append(new MetrageItemRow(
-          department.departmentLayout.name + ' <span>' + department.departmentLayout.expectedGrowth + '%</span>',
+          department.departmentLayout.name + ' <span>(' + department.departmentLayout.expectedGrowth + '%)</span>',
           '',
           department.departmentLayout.totalDepartmentM2WithGrowth).build()
         );
@@ -128,6 +179,7 @@ export class Output {
     stack.append(new MetrageItemRow('Totaal', '', total, 'header').build());
 
     this.formContent.append(stack);
+    console.log(' ');
   }
 
   addMetrageList(stack: HTMLDivElement, layout: DepartmentLayout): void {
