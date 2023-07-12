@@ -2,13 +2,14 @@ import {Department} from "$utils/department";
 import {DepartmentDropdown} from "$utils/departmentDropdown";
 import {Anchor} from "$utils/html";
 import {DropDownGroup} from "$utils/factory";
-import {ExtraRoomsLayout, FacultiesLayout, OfficeLayout, OtherRoomsLayout} from "$utils/variables";
+import {ExtraRoomsLayout, FacilitiesLayout, MeetingSpaceLayout, OfficeLayout, OtherRoomsLayout} from "$utils/variables";
 
 export class Form {
   private _officeLayout: OfficeLayout | null = null;
   globalDepartment: Department;
   departments: Array<Department> = new Array<Department>();
-  facultiesLayout: FacultiesLayout;
+  meetingSpaceLayout: MeetingSpaceLayout;
+  facilitiesLayout: FacilitiesLayout;
   otherRoomsLayout: OtherRoomsLayout;
   extraRoomsLayout: ExtraRoomsLayout;
   ids: Array<string> = new Array<string>();
@@ -23,7 +24,8 @@ export class Form {
   constructor() {
     this.dropdownGroup = new DropDownGroup();
     this.globalDepartment = new Department();
-    this.facultiesLayout = new FacultiesLayout();
+    this.meetingSpaceLayout = new MeetingSpaceLayout();
+    this.facilitiesLayout = new FacilitiesLayout();
     this.otherRoomsLayout = new OtherRoomsLayout();
     this.extraRoomsLayout = new ExtraRoomsLayout();
     this.addDepartmentBtn = Anchor.build(['button', 'w-button']);
@@ -41,7 +43,8 @@ export class Form {
     this.departmentTab.append(this.addDepartmentBtn);
 
     let form: HTMLFormElement = document.getElementById('wf-form-metrageTool') as HTMLFormElement;
-    form.append(this.facultiesLayout.build());
+    form.append(this.meetingSpaceLayout.build());
+    form.append(this.facilitiesLayout.build());
     form.append(this.otherRoomsLayout.build());
     form.append(this.extraRoomsLayout.build());
 

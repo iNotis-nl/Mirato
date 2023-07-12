@@ -29,6 +29,7 @@ export class Input {
     return Element.build('input', classList, attributes) as HTMLInputElement;
   }
 }
+
 export class Img {
   static build(src: string, classList: Array<string> | null = null, attributes: Object | null = null): HTMLImageElement {
     attributes = attributes ? attributes : new Object({});
@@ -55,7 +56,7 @@ export class Element {
 }
 
 export class CheckboxLabel {
-  static build(text: string, value: string, selected: boolean = false, classList: Array<string> | null = null): HTMLLabelElement {
+  static build(text: string, value: string, selected: boolean = false, classList: Array<string> | null = null, readonly: boolean = false): HTMLLabelElement {
     const id = window.Form?.createId('CheckboxLabel');
     const label: HTMLLabelElement = Label.build(['w-checkbox', 'form-checkbox']);
     classList = classList ? classList : new Array('');
@@ -63,12 +64,16 @@ export class CheckboxLabel {
       if (c)
         label.classList.add(c);
     });
-    const icon: HTMLDivElement = Div.build(['w-checkbox-input', 'w-checkbox-input--inputType-custom', 'form-checkbox-icon']);
+    const icon: HTMLDivElement = Div.build(['w-checkbox-input', 'w-checkbox-input--inputType-custom', 'form-checkbox-icon', readonly ? 'w-input-disabled' : '']);
     const checkbox: HTMLInputElement = Input.build('checkbox', null, {
       'id': id,
       'style': 'opacity:0;position:absolute;z-index:-1',
-      'value': value
+      'value': value,
     });
+    if (readonly) {
+      checkbox.readOnly = true;
+      checkbox.disabled = true;
+    }
     if (selected) {
       icon.classList.add('w--redirected-checked');
       checkbox.setAttribute('checked', 'true');

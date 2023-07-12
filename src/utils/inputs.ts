@@ -10,6 +10,7 @@ export const officeLayoutIn = () => {
 export const toggleModeDepartments = () => {
   return document.getElementById('metrage-tab-item-department') as HTMLAnchorElement;
 };
+
 export const toggleModeGlobal = () => {
   return document.getElementById('metrage-tab-item-global') as HTMLAnchorElement;
 };

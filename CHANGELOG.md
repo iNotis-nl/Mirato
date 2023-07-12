@@ -16,7 +16,7 @@
 
 ### Minor Changes
 
-- 2bd777a: WIP on Extra rooms and Faculties
+- 2bd777a: WIP on Extra rooms and Facilities
 
 ## 0.0.1
 

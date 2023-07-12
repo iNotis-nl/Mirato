@@ -2,7 +2,8 @@ import {DepartmentLayout, MODE_DEPARTMENT, MODE_GLOBAL} from '$utils/variables';
 import {MetrageItemRow, MetrageStack} from "$utils/factory";
 import {Div} from "$utils/html";
 import type {Department} from "$utils/department";
-import type {Faculty} from "$utils/helpers";
+import type {Facility} from "$utils/helpers";
+import {ExtraRoom, MeetingRoom, parseIntOrZero} from "$utils/helpers";
 
 
 export class Output {
@@ -46,6 +47,7 @@ export class Output {
 
     let numEmployees: number = 0;
     let numWorkstations: number = 0;
+    let subTotalDepartment: number = 0;
     let subTotal: number = 0;
     let total: number = 0;
     let averageGrowth: number = 0;
@@ -60,9 +62,8 @@ export class Output {
       numEmployees = layout.numEmployees;
       numWorkstations = layout.numWorkstations;
       // @ts-ignore
-      subTotal += window.Form.globalDepartment.departmentLayout.totalDepartmentM2;
-      // @ts-ignore
-      total += window.Form.globalDepartment.departmentLayout.totalDepartmentM2WithGrowth;
+      subTotalDepartment += window.Form.globalDepartment.departmentLayout.totalDepartmentM2;
+      subTotal += subTotalDepartment;
       // @ts-ignore
       averageGrowth = window.Form.globalDepartment.departmentLayout.expectedGrowth;
       this.addMetrageList(stack, layout);
@@ -74,108 +75,187 @@ export class Output {
         numEmployees += department.departmentLayout.numEmployees;
         numWorkstations = department.departmentLayout.numWorkstations;
         subTotal += department.departmentLayout.totalDepartmentM2;
-        total += department.departmentLayout.totalDepartmentM2WithGrowth;
-        averageGrowth += department.departmentLayout.expectedGrowth;
+        averageGrowth += department.departmentLayout.numEmployees * (1 + (department.departmentLayout.expectedGrowth / 100));
 
         stack.append(new MetrageItemRow(department.departmentLayout.name, '', department.departmentLayout.totalDepartmentM2, 'subheader', ['department']).build());
         that.addMetrageList(stack, department.departmentLayout);
       });
-      averageGrowth /= departments.length;
+      averageGrowth = parseIntOrZero(Math.round(((averageGrowth / numEmployees) - 1) * 100).toString());
     }
 
-    stack.append(Div.build(['tool-m2_divider']));
-
+    stack.append(Div.build(['tool-m2_divider', 'is-soft']));
 
     /////////////////////////////////////////////////////////////
-    ///////////////////////// Faculties /////////////////////////
+    /////////////////////// MeetingRooms ////////////////////////
     /////////////////////////////////////////////////////////////
-    console.log('Building Faculties');
-    let facultiesStack: MetrageStack = new MetrageStack(
+    console.log('Building MeetingRooms');
+    // @ts-ignore
+    let meetingRoomSubTotalM2: number = window.Form?.meetingSpaceLayout.totalM2();
+    if (meetingRoomSubTotalM2 > 0) {
+      let meetingsRoomStack: MetrageStack = new MetrageStack(
+        // @ts-ignore
+        new MetrageItemRow('Vergaderen', '', meetingRoomSubTotalM2, 'subheader')
+      );
+      let meetingsRoomList: MeetingRoom[] = window.Form?.meetingSpaceLayout.list() ?? [];
+      meetingsRoomList.forEach((item: MeetingRoom): void => {
+        if (item.amount > 0) {
+          meetingsRoomStack.append(new MetrageItemRow(item.name, '', item.callbackFn(item.amount)));
+        }
+      });
       // @ts-ignore
-      new MetrageItemRow('Faciliteiten', '', window.Form?.facultiesLayout.totalM2(numEmployees), 'subheader')
+      subTotal += meetingRoomSubTotalM2;
+      stack.append(meetingsRoomStack.build());
+    }
+
+    /////////////////////////////////////////////////////////////
+    //////////////////////// Facilities /////////////////////////
+    /////////////////////////////////////////////////////////////
+    console.log('Building Facilities');
+    // @ts-ignore;
+    let facilitiesSubTotalM2: number = window.Form?.facilitiesLayout.totalM2(numEmployees, subTotal, numWorkstations);
+    let facilitiesStack: MetrageStack = new MetrageStack(
+      // @ts-ignore
+      new MetrageItemRow('Faciliteiten', '', facilitiesSubTotalM2, 'subheader')
     );
-    let facultiesList: Faculty[] = window.Form?.facultiesLayout.list() ?? [];
-    facultiesList.forEach((item: Faculty): void => {
+    let facilitiesList: Facility[] = window.Form?.facilitiesLayout.list() ?? [];
+    facilitiesList.forEach((item: Facility): void => {
       if (item.active) {
-        facultiesStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
+        facilitiesStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
       }
     });
-    stack.append(facultiesStack.build());
+    stack.append(facilitiesStack.build());
     // @ts-ignore
-    total += window.Form?.facultiesLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
-    // @ts-ignore
-    subTotal += window.Form?.facultiesLayout.totalM2(numEmployees, subTotal, numWorkstations);
+    subTotal += facilitiesSubTotalM2;
 
 
     //////////////////////////////////////////////////////////////
     ///////////////////////// Other Rooms ////////////////////////
     //////////////////////////////////////////////////////////////
     console.log('Building Other Rooms');
+    // @ts-ignore
+    let otherRoomsSubTotalM2: number = window.Form?.otherRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations);
     let otherRoomsStack: MetrageStack = new MetrageStack(
       // @ts-ignore
-      new MetrageItemRow('Overige ruimtes', '', window.Form?.otherRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations), 'subheader')
+      new MetrageItemRow('Overige ruimtes', '', otherRoomsSubTotalM2, 'subheader')
     );
-    let otherRoomsList: Faculty[] = window.Form?.otherRoomsLayout.list() ?? [];
-    otherRoomsList.forEach((item: Faculty): void => {
+    let otherRoomsList: Facility[] = window.Form?.otherRoomsLayout.list() ?? [];
+    otherRoomsList.forEach((item: Facility): void => {
       if (item.active) {
         otherRoomsStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
       }
     });
     stack.append(otherRoomsStack.build());
     // @ts-ignore
-    total += window.Form?.otherRoomsLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
-    // @ts-ignore
-    subTotal += window.Form?.otherRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations);
+    subTotal += otherRoomsSubTotalM2;
+
 
     //////////////////////////////////////////////////////////////
     ///////////////////////// Extra Rooms ////////////////////////
     //////////////////////////////////////////////////////////////
     console.log('Building Extra Rooms');
-    let extraRoomsList: Faculty[] = window.Form?.extraRoomsLayout.list() ?? [];
+    let extraRoomsList: ExtraRoom[] = window.Form?.extraRoomsLayout.list() ?? [];
+    let extraRoomsSubTotalM2: number = 0;
     if (window.Form?.extraRoomsLayout.hasActive()) {
+      extraRoomsSubTotalM2 = window.Form?.extraRoomsLayout.totalM2();
       let extraRoomsStack: MetrageStack = new MetrageStack(
         // @ts-ignore
-        new MetrageItemRow('Extra ruimtes', '', window.Form?.extraRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations), 'subheader')
+        new MetrageItemRow('Extra ruimtes', '', extraRoomsSubTotalM2, 'subheader')
       );
-      extraRoomsList.forEach((item: Faculty): void => {
+      extraRoomsList.forEach((item: ExtraRoom): void => {
         if (item.active) {
-          extraRoomsStack.append(new MetrageItemRow(item.name, '', item.callbackFn(numEmployees, subTotal, numWorkstations)));
+          extraRoomsStack.append(new MetrageItemRow(item.name, '', item.callbackFn()));
         }
       });
       stack.append(extraRoomsStack.build());
       // @ts-ignore
-      total += window.Form?.extraRoomsLayout.totalM2(Math.ceil(numEmployees * (1 + (averageGrowth / 100))), subTotal, numWorkstations);
-      // @ts-ignore
-      subTotal += window.Form?.extraRoomsLayout.totalM2(numEmployees, subTotal, numWorkstations);
+      subTotal += extraRoomsSubTotalM2;
     }
 
     ////////////////////////////////////////////////////////////
     //////////////////// Subtotal & Growth /////////////////////
     ////////////////////////////////////////////////////////////
-    console.log('Building Subtotal, Growth and Total');
-    stack.append(Div.build(['tool-m2_divider']));
+    console.log('Building Subtotal');
+    stack.append(Div.build(['tool-m2_divider', 'is-soft']));
     stack.append(new MetrageItemRow('Subtotaal', '', subTotal, 'header').build());
+    total = subTotal;
+    let numEmployeesGrowth: number = Math.ceil(numEmployees * (1 + (averageGrowth / 100)));
+    console.log('After 5 years, we will have a total of', numEmployeesGrowth, 'employees.');
 
-    if (this._mode === MODE_GLOBAL) {
-      // @ts-ignore
-      stack.append(new MetrageItemRow(
-        'Verwachte groei in 5 jaar',
-        '',
-        window.Form?.globalDepartment.departmentLayout.totalDepartmentM2WithGrowth,
-        'subheader').build());
-    } else if (this._mode === MODE_DEPARTMENT) {
-      stack.append(new MetrageItemRow('Verwachte groei in 5 jaar', '', '', 'subheader').build());
-      // @ts-ignore
-      const departments: Department[] = window.Form.departments;
-      departments.forEach(function (department: Department): void {
+    if (averageGrowth > 0) {
+      console.log('Building Growth');
+      if (this._mode === MODE_GLOBAL) {
+        // @ts-ignore
         stack.append(new MetrageItemRow(
-          department.departmentLayout.name + ' <span>(' + department.departmentLayout.expectedGrowth + '%)</span>',
+          'Verwachte groei in 5 jaar (' + averageGrowth + '%)',
           '',
-          department.departmentLayout.totalDepartmentM2WithGrowth).build()
+          Math.ceil(subTotalDepartment * (averageGrowth / 100)),
+          'subheader').build());
+        total += Math.ceil(subTotalDepartment * (averageGrowth / 100));
+      } else if (this._mode === MODE_DEPARTMENT) {
+        stack.append(new MetrageItemRow('Verwachte groei in 5 jaar', '', '', 'subheader').build());
+        // @ts-ignore
+        const departments: Department[] = window.Form.departments;
+        departments.forEach(function (department: Department): void {
+          if (department.departmentLayout.expectedGrowth > 0) {
+            let departmentGrowth: number = department.departmentLayout.totalGrowth;
+            total += departmentGrowth;
+            stack.append(new MetrageItemRow(
+              department.departmentLayout.name + ' <span>(+' + department.departmentLayout.expectedGrowth + '%)</span>',
+              '',
+              '+' + departmentGrowth,
+              'subheader').build(),
+            );
+          }
+        });
+      }
+
+      if (meetingRoomSubTotalM2 > 0) {
+        let meetingRoomTotalM2: number = Math.ceil(meetingRoomSubTotalM2 * (averageGrowth / 100));
+        // @ts-ignore
+        stack.append(new MetrageItemRow(
+            'Vergaderen', '', '+' + meetingRoomTotalM2, 'subheader'
+          ).build()
         );
-      });
+        total += meetingRoomTotalM2;
+      }
+
+      // Facility is mostly based on the number of Employees
+      // @ts-ignore
+      let facilitiesTotalM2: number = window.Form?.facilitiesLayout.totalM2(numEmployeesGrowth, subTotal, numWorkstations);
+      if (facilitiesTotalM2 > 0) {
+        // @ts-ignore
+        stack.append(new MetrageItemRow(
+            'Faciliteiten', '', '+' + (facilitiesTotalM2 - facilitiesSubTotalM2), 'subheader'
+          ).build()
+        );
+        total += (facilitiesTotalM2 - facilitiesSubTotalM2);
+      }
+
+      // Other rooms is mostly based on the number of Employees
+      // @ts-ignore
+      let otherRoomsTotalM2: number = window.Form?.otherRoomsLayout.totalM2(numEmployeesGrowth, subTotal, numWorkstations);
+      if (otherRoomsTotalM2 > 0) {
+        // @ts-ignore
+        stack.append(new MetrageItemRow(
+            'Extra ruimtes', '', '+' + (otherRoomsTotalM2 - otherRoomsSubTotalM2), 'subheader'
+          ).build()
+        );
+        total += (otherRoomsTotalM2 - otherRoomsSubTotalM2);
+      }
+
+      if (window.Form?.extraRoomsLayout.hasActive()) {
+        let extraRoomTotalM2: number = Math.ceil(extraRoomsSubTotalM2 * (averageGrowth / 100));
+        // @ts-ignore
+        stack.append(new MetrageItemRow(
+            'Extra ruimtes', '', '+' + extraRoomTotalM2, 'subheader'
+          ).build()
+        );
+        total += extraRoomTotalM2;
+      }
     }
-    stack.append(Div.build(['tool-m2_divider']));
+
+
+    stack.append(Div.build(['tool-m2_divider','is-soft']));
     stack.append(new MetrageItemRow('Totaal', '', total, 'header').build());
 
     this.formContent.append(stack);
@@ -187,22 +267,16 @@ export class Output {
       new MetrageItemRow('Medewerkers', layout.numEmployees, '', 'muted'),
       new MetrageItemRow('Werkplekken', layout.numWorkstations, layout.numWorkstationsM2),
     ).build());
-    stack.append(new MetrageStack(
-      new MetrageItemRow('Afsluitbare werkruimtes', '', layout.totalPersonsRoomsM2, 'subheader'),
-      new MetrageItemRow('Directie ruimtes', layout.numCEORooms, layout.numCEORoomsM2),
-      new MetrageItemRow('Kantoren - 1 persoon', layout.num1PersonRooms, layout.num1PersonRoomsM2),
-      new MetrageItemRow('Kantoren - 2 personen', layout.num2PersonRooms, layout.num2PersonRoomsM2),
-      new MetrageItemRow('Kantoren - 4 personen', layout.num4PersonRooms, layout.num4PersonRoomsM2),
-      new MetrageItemRow('Kantoren - 6 personen', layout.num6PersonRooms, layout.num6PersonRoomsM2),
-    ).build());
-    stack.append(new MetrageStack(
-      new MetrageItemRow('Overlegruimtes', '', layout.totalPersonConferenceRoomsM2, 'subheader'),
-      new MetrageItemRow('Belplekken', layout.numCallRooms, layout.numCallRoomsM2),
-      new MetrageItemRow('Overlegruimtes - 2-4 persoon', layout.num2PersonConferenceRooms, layout.num2PersonConferenceRoomsM2),
-      new MetrageItemRow('Overlegruimtes - 6-8 personen', layout.num6PersonConferenceRooms, layout.num6PersonConferenceRoomsM2),
-      new MetrageItemRow('Overlegruimtes - 10-20 personen', layout.num10PersonConferenceRooms, layout.num10PersonConferenceRoomsM2),
-      new MetrageItemRow('Overlegruimtes - tot 50 personen', layout.num50PersonConferenceRooms, layout.num50PersonConferenceRoomsM2),
-    ).build());
+    if (layout.totalPersonsRoomsM2 > 0) {
+      stack.append(new MetrageStack(
+        new MetrageItemRow('Afsluitbare kantoren', '', layout.totalPersonsRoomsM2, 'subheader'),
+        layout.numCEORooms > 0 ? new MetrageItemRow('Directie ruimtes', layout.numCEORooms, layout.numCEORoomsM2) : null,
+        layout.num1PersonRooms > 0 ? new MetrageItemRow('Kantoren - 1 persoon', layout.num1PersonRooms, layout.num1PersonRoomsM2) : null,
+        layout.num2PersonRooms > 0 ? new MetrageItemRow('Kantoren - 2 personen', layout.num2PersonRooms, layout.num2PersonRoomsM2) : null,
+        layout.num4PersonRooms > 0 ? new MetrageItemRow('Kantoren - 4 personen', layout.num4PersonRooms, layout.num4PersonRoomsM2) : null,
+        layout.num6PersonRooms > 0 ? new MetrageItemRow('Kantoren - 6 personen', layout.num6PersonRooms, layout.num6PersonRoomsM2) : null,
+      ).build());
+    }
   }
 }
 
