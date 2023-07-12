@@ -1,5 +1,6 @@
 import {CheckboxLabel, Div, Input} from "$utils/html";
-import {Faculty, getIndex} from "$utils/helpers";
+import {ExtraRoom, Facility, getIndex, MeetingRoom, parseIntOrZero} from "$utils/helpers";
+import {InputFormField} from "$utils/factory";
 
 /**
  * List of Constants used in the tool to calculate the m2 needed
@@ -10,12 +11,12 @@ export const MODE_GLOBAL: string = 'global';
 
 export class OfficeLayout {
   type: string;
-  multiplier: number;
+  multiplier: number = 1;
 
   multiplierOptions: { [key: string]: number } = {
     LayoutBasic: 1,
     LayoutSemiOpen: 1.2,
-    LayoutComfort: 1.3,
+    LayoutComfort: 1.5,
   };
 
   constructor(type: string) {
@@ -34,42 +35,64 @@ export class DepartmentLayout {
   num2PersonRooms: number = 0;
   num4PersonRooms: number = 0;
   num6PersonRooms: number = 0;
-  numCallRooms: number = 0;
-  num2PersonConferenceRooms: number = 0;
-  num6PersonConferenceRooms: number = 0;
-  num10PersonConferenceRooms: number = 0;
-  num50PersonConferenceRooms: number = 0;
 
   get totalDepartmentM2(): number {
-    return this.numWorkstationsM2 + this.totalPersonsRoomsM2 + this.totalPersonConferenceRoomsM2;
+    return this.numWorkstationsM2 + this.totalPersonsRoomsM2;
   }
 
-  get totalDepartmentM2WithGrowth(): number {
-    return Math.ceil(this.totalDepartmentM2 * (1 + (this.expectedGrowth / 100)));
+  get totalGrowth(): number {
+    let subTotalDepartment: number = this.totalDepartmentM2;
+    let totalDepartment: number = Math.ceil(subTotalDepartment * (this.expectedGrowth / 100));
+    console.log('- ', '"' + this.name + '"', 'was ', subTotalDepartment, 'm2 *', this.expectedGrowth + '%', ' = ', totalDepartment);
+    return totalDepartment;
   }
 
   get numWorkstationsM2(): number {
-    return Math.ceil(this.numWorkstations * 6 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.numWorkstations > 0) {
+      console.log(' -', this.numWorkstations, 'Workstations * 6 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.numWorkstations * 6 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get numCEORoomsM2(): number {
-    return Math.ceil(this.numCEORooms * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.numCEORooms > 0) {
+      console.log(' -', this.numCEORooms, 'Workstations * 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.numCEORooms * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get num1PersonRoomsM2(): number {
-    return Math.ceil(this.num1PersonRooms * 12 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.num1PersonRooms > 0) {
+      console.log(' -', this.num1PersonRooms, '1-person room * 12 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.num1PersonRooms * 12 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get num2PersonRoomsM2(): number {
-    return Math.ceil(this.num2PersonRooms * 14 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.num2PersonRooms > 0) {
+      console.log(' -', this.num2PersonRooms, '2-person room * 14 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.num2PersonRooms * 14 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get num4PersonRoomsM2(): number {
-    return Math.ceil(this.num4PersonRooms * 22 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.num4PersonRooms > 0) {
+      console.log(' -', this.num4PersonRooms, '4-person room * 22 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.num4PersonRooms * 22 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get num6PersonRoomsM2(): number {
-    return Math.ceil(this.num6PersonRooms * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
+    if (this.num6PersonRooms > 0) {
+      console.log(' -', this.num6PersonRooms, '6-person room * 30 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+      return Math.ceil(this.num6PersonRooms * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
+    }
+    return 0;
   }
 
   get totalPersonsRoomsM2(): number {
@@ -79,69 +102,50 @@ export class DepartmentLayout {
       this.num4PersonRoomsM2 +
       this.num6PersonRoomsM2;
   }
-
-  get numCallRoomsM2(): number {
-    return Math.ceil(this.numCallRooms * 4 * (window.Form?.officeLayout?.multiplier ?? 1));
-  }
-
-  get num2PersonConferenceRoomsM2(): number {
-    return Math.ceil(this.num2PersonConferenceRooms * 8 * (window.Form?.officeLayout?.multiplier ?? 1));
-  }
-
-  get num6PersonConferenceRoomsM2(): number {
-    return Math.ceil(this.num6PersonConferenceRooms * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
-  }
-
-  get num10PersonConferenceRoomsM2(): number {
-    return Math.ceil(this.num10PersonConferenceRooms * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
-  }
-
-  get num50PersonConferenceRoomsM2(): number {
-    return Math.ceil(this.num50PersonConferenceRooms * 50 * (window.Form?.officeLayout?.multiplier ?? 1));
-  }
-
-  get totalPersonConferenceRoomsM2(): number {
-    return this.numCallRoomsM2 +
-      this.num2PersonConferenceRoomsM2 +
-      this.num6PersonConferenceRoomsM2 +
-      this.num10PersonConferenceRoomsM2 +
-      this.num50PersonConferenceRoomsM2;
-  }
 }
 
-export class FacultiesLayout {
-  private name: string = 'Faculiteiten';
+export class MeetingSpaceLayout {
+  private name: string = 'Vergaderen';
   private readonly stack: HTMLDivElement;
   private readonly formField: HTMLDivElement;
 
-  // Default Faculties
-  private defaults: Faculty[] = [
-    new Faculty('Pantry / Koffiecorner', false, (numEmployees: number) => {
-      return Math.ceil(15 * Math.ceil(numEmployees / 50));
+
+  // Default MeetingRoom
+  private defaults: MeetingRoom[] = [
+    new MeetingRoom('Aantal belplekken', (amount: number): number => {
+      if (amount > 0) {
+        console.log(' - Aantal belplekken = ', amount, '* 4 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+        return Math.ceil(amount * 4 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Lunchruimte', false, (numEmployees: number) => {
-      return Math.ceil(numEmployees * 3);
+    new MeetingRoom('Aantal vergaderruimtes voor 2-4 personen', (amount: number): number => {
+      if (amount > 0) {
+        console.log(' - 2-people conference = ', amount, '* 8 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+        return Math.ceil(amount * 8 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Grootkeuken', false, (numEmployees: number) => {
-      return Math.ceil(30);
+    new MeetingRoom('Aantal vergaderruimtes voor 6-8 personen', (amount: number): number => {
+      if (amount > 0) {
+        console.log(' - 6-people conference = ', amount, '* 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+        return Math.ceil(amount * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Lounge', false, (numEmployees: number) => {
-      return Math.ceil(30 * Math.ceil(numEmployees / 100));
+    new MeetingRoom('Aantal vergaderruimtes voor 10-20 personen', (amount: number): number => {
+      if (amount > 0) {
+        console.log(' - 10-people conference = ', amount, '* 30 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+        return Math.ceil(amount * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Gym', false, (numEmployees: number) => {
-      return Math.ceil(55);
-    }),
-    new Faculty('Game/Funruimte', false, (numEmployees: number) => {
-      return Math.ceil(40);
-    }),
-    new Faculty('Bemande receptie', false, (numEmployees: number) => {
-      return Math.ceil(30);
-    }),
-    new Faculty('Kolfruimte', true, (numEmployees: number) => {
-      return Math.ceil(5 * Math.ceil(numEmployees / 80));
-    }),
-    new Faculty('Bidruimte', true, (numEmployees: number) => {
-      return Math.ceil(6 * Math.ceil(numEmployees / 80));
+    new MeetingRoom('Aantal vergaderruimtes tot 50 personen', (amount: number): number => {
+      if (amount > 0) {
+        console.log(' - 50-people conference = ', amount, '* 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
+        return Math.ceil(amount * 50 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
   ];
 
@@ -154,15 +158,15 @@ export class FacultiesLayout {
     this.stack.append(this.formField);
   }
 
-  list(): Faculty[] {
+  list(): MeetingRoom[] {
     return this.defaults;
   }
 
-  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+  totalM2(): number {
     let totalM2: number = 0;
-    this.defaults.forEach((faculty: Faculty): void => {
-      if (faculty.active) {
-        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+    this.defaults.forEach((room: MeetingRoom): void => {
+      if (room.amount > 0) {
+        totalM2 += room.callbackFn(room.amount);
       }
     })
     return totalM2;
@@ -170,8 +174,128 @@ export class FacultiesLayout {
 
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
-    this.defaults.forEach((item: Faculty, i: number): void => {
-      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
+    this.defaults.forEach((item: MeetingRoom, i: number): void => {
+      const el: HTMLDivElement = new InputFormField(['index-' + i]).build(item.name);
+      el.onchange = (e: Event): void => {
+        let target: HTMLInputElement = e.target as HTMLInputElement;
+        let amount: number = parseIntOrZero(target.value);
+        let index: number = getIndex(el.classList.toString().split(' '));
+        this.defaults[index].amount = amount;
+        window.Output?.reset();
+      };
+      this.formField.append(el);
+    });
+
+    return this.stack;
+  }
+}
+
+export class FacilitiesLayout {
+  private name: string = 'Faciliteiten';
+  private readonly stack: HTMLDivElement;
+  private readonly formField: HTMLDivElement;
+
+  // Default Facilities
+  private defaults: Facility[] = [
+    new Facility('Pantry / Koffiecorner', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Pantry / Koffiecorner = 15m2 * ', Math.ceil(numEmployees / 50), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(15 * Math.ceil(numEmployees / 50) * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Lunchruimte', false, (numEmployees: number, subTotal: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Lunchruimte = 3m2 * ', numWorkstations, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(numWorkstations * 3 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Grootkeuken', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Grootkeuken = 30m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(30 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Lounge', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Lounge = 30m2 * ', Math.ceil(numEmployees / 100), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(30 * Math.ceil(numEmployees / 100) * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Gym', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Gym = 55m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(55 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Game/Funruimte', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Game/Funruimte = 40m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(40 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Bemande receptie', false, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Bemande receptie = 30m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(30 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Lockers', true, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Lockers = 0.05m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(numEmployees * 0.05 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Garderobe', true, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Garderobe = 0.05m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(numEmployees * 0.05 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+    new Facility('Repro', true, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Repro = 0.20m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(numEmployees * 0.20 * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
+    }),
+  ];
+
+  constructor() {
+    this.stack = Div.build(['stack']);
+    let heading: HTMLDivElement = Div.build(['heading-small']);
+    heading.innerText = this.name;
+    this.stack.append(heading);
+    this.formField = Div.build(['form-field']);
+    this.stack.append(this.formField);
+  }
+
+  list(): Facility[] {
+    return this.defaults;
+  }
+
+  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+    let totalM2: number = 0;
+    this.defaults.forEach((facility: Facility): void => {
+      if (facility.active) {
+        totalM2 += facility.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+      }
+    })
+    return totalM2;
+  }
+
+  build(): HTMLDivElement {
+    this.formField.innerHTML = '';
+    this.defaults.forEach((item: Facility, i: number): void => {
+      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
       el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
@@ -192,33 +316,58 @@ export class OtherRoomsLayout {
   private readonly formField: HTMLDivElement;
 
   // Default OtherRooms
-  private defaults: Faculty[] = [
-    new Faculty('Aanlandplekken', true, (numEmployees: number, subtotalM3: number, numWorkspaces: number): number => {
-      return numWorkspaces ? Math.ceil(numWorkspaces * 0.5) : 0;
+  private defaults: Facility[] = [
+    new Facility('Verkeersruimte', true, (numEmployees: number, subtotalM3: number): number => {
+      if (subtotalM3 > 0) {
+        console.log(' - Verkeersruimte = 0.14m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return subtotalM3 ? Math.ceil(subtotalM3 * 0.14 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+      }
+      return 0;
+    }, true),
+    new Facility('Aanlandplekken', true, (numEmployees: number, subtotalM3: number, numWorkspaces: number): number => {
+      if (numWorkspaces > 0) {
+        console.log(' - Aanlandplekken = 0.5m2 * ', numWorkspaces, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return numWorkspaces ? Math.ceil(numWorkspaces * 0.5 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+      }
+      return 0;
     }),
-    new Faculty('Loopruimte', true, (numEmployees: number, subtotalM3: number): number => {
-      return subtotalM3 ? Math.ceil(subtotalM3 * 0.14) : 0;
+    new Facility('Serverruimte', true, (numEmployees: number, subtotalM3: number): number => {
+      if (subtotalM3 > 0) {
+        console.log(' - Serverruimte = 0.01m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return subtotalM3 ? Math.ceil(subtotalM3 * 0.01 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+      }
+      return 0;
     }),
-    new Faculty('Serverruimte', true, (numEmployees: number, subtotalM3: number): number => {
-      return subtotalM3 ? Math.ceil(subtotalM3 * 0.01) : 0;
+    new Facility('Kolfruimte', true, (numEmployees: number): number => {
+      numEmployees = numEmployees <= 0 ? 1 : numEmployees;
+      console.log(' - Kolfruimte = 5m2 * ', Math.ceil(numEmployees / 80), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+      return Math.ceil(5 * Math.ceil(numEmployees / 80) * (window.Form?.officeLayout?.multiplier ?? 1));
+    }, true),
+    new Facility('Bidruimte', true, (numEmployees: number): number => {
+      numEmployees = numEmployees <= 0 ? 1 : numEmployees;
+      console.log(' - Bidruimte = 6m2 * ', Math.ceil(numEmployees / 80), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+      return Math.ceil(6 * Math.ceil(numEmployees / 80) * (window.Form?.officeLayout?.multiplier ?? 1));
+    }, true),
+    new Facility('Toilets', true, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - Toilets = 5.5m2 * ', Math.ceil(numEmployees / 30), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(5.5 * Math.ceil(numEmployees / 30) * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Lockers', true, (numEmployees: number) => {
-      return Math.ceil(numEmployees * 0.05);
+    new Facility('MIVA', true, (numEmployees: number): number => {
+      if (numEmployees > 0) {
+        console.log(' - MIVA = 3.7m2 * ', Math.ceil(((numEmployees / 30) * 2) / 10), '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return Math.ceil(3.7 * Math.ceil(((numEmployees / 30) * 2) / 10) * (window.Form?.officeLayout?.multiplier ?? 1));
+      }
+      return 0;
     }),
-    new Faculty('Repro', true, (numEmployees: number) => {
-      return Math.ceil(numEmployees * 0.20);
-    }),
-    new Faculty('Garderobe', true, (numEmployees: number) => {
-      return Math.ceil(numEmployees * 0.05);
-    }),
-    new Faculty('Toilets', true, (numEmployees: number) => {
-      return Math.ceil(5.5 * Math.ceil(numEmployees / 30));
-    }),
-    new Faculty('MIVA', true, (numEmployees: number) => {
-      return Math.ceil(3.7 * Math.ceil(((numEmployees / 30) * 2) / 10));
-    }),
-    new Faculty('Gridlos', true, (numEmployees: number, subtotalM3: number): number => {
-      return subtotalM3 ? Math.ceil(subtotalM3 * 0.1) : 0;
+    new Facility('Gridloss', true, (numEmployees: number, subtotalM3: number): number => {
+      if (subtotalM3 > 0) {
+        console.log(' - Gridloss = 0.1m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
+        return subtotalM3 ? Math.ceil(subtotalM3 * 0.1 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+      }
+      return 0;
     }),
   ];
 
@@ -231,15 +380,15 @@ export class OtherRoomsLayout {
     this.stack.append(this.formField);
   }
 
-  list(): Faculty[] {
+  list(): Facility[] {
     return this.defaults;
   }
 
   totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
     let totalM2: number = 0;
-    this.defaults.forEach((faculty: Faculty): void => {
-      if (faculty.active) {
-        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+    this.defaults.forEach((facility: Facility): void => {
+      if (facility.active) {
+        totalM2 += facility.callbackFn(numEmployees, subtotalM3, numWorkspaces);
       }
     })
     return totalM2;
@@ -247,8 +396,8 @@ export class OtherRoomsLayout {
 
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
-    this.defaults.forEach((item: Faculty, i: number): void => {
-      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
+    this.defaults.forEach((item: Facility, i: number): void => {
+      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
       el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
@@ -270,7 +419,7 @@ export class ExtraRoomsLayout {
   private readonly inputM2: HTMLInputElement;
   private readonly formButton: HTMLAnchorElement;
   private readonly formField: HTMLDivElement;
-  private defaults: Faculty[] = [];
+  private defaults: ExtraRoom[] = [];
 
   constructor() {
     this.stack = Div.build(['stack']);
@@ -294,10 +443,7 @@ export class ExtraRoomsLayout {
     this.formButton.text = 'Ruimte toevoegen';
     this.formButton.onclick = () => {
       if (this.inputName.value !== '' && this.inputM2.value !== '') {
-        this.add(new Faculty(this.inputName.value, true, () => {
-          // Fixed value
-          return parseInt(this.inputM2.value)
-        }));
+        this.add(new ExtraRoom(this.inputName.value, parseInt(this.inputM2.value)));
         this.inputName.value = '';
         this.inputM2.value = '';
       }
@@ -305,40 +451,40 @@ export class ExtraRoomsLayout {
     extraRooms.append(this.formButton);
   }
 
-  add(faculty: Faculty): void {
-    this.defaults.push(faculty);
+  add(extraRoom: ExtraRoom): void {
+    this.defaults.push(extraRoom);
     window.Output?.reset();
     window.Form?.init();
   }
 
-  list(): Faculty[] {
+  list(): ExtraRoom[] {
     return this.defaults;
   }
 
   hasActive(): boolean {
     let hasActive: boolean = false;
-    this.defaults.forEach((faculty: Faculty): void => {
-      if (faculty.active) {
+    this.defaults.forEach((extraRoom: ExtraRoom): void => {
+      if (extraRoom.active) {
         hasActive = true;
       }
     });
     return hasActive;
   }
 
-  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+  totalM2(): number {
     let totalM2: number = 0;
-    this.defaults.forEach((faculty: Faculty): void => {
-      if (faculty.active) {
-        totalM2 += faculty.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+    this.defaults.forEach((extraRoom: ExtraRoom): void => {
+      if (extraRoom.active) {
+        totalM2 += extraRoom.callbackFn();
       }
-    })
+    });
     return totalM2;
   }
 
 
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
-    this.defaults.forEach((item: Faculty, i: number): void => {
+    this.defaults.forEach((item: ExtraRoom, i: number): void => {
       const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
       el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;

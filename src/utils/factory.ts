@@ -22,6 +22,9 @@ export class MetrageItemRow {
     const titleDiv: HTMLDivElement = Div.build(['tool-m2_outcome-item', this.style === 'muted' ? 'text-style-muted' : '']);
     const metrageItem: HTMLElement = document.createElement(this.style === 'header' ? 'H3' : this.style === 'subheader' ? 'H4' : 'div');
     metrageItem.classList.add('tool-m2_outcome-title-label');
+    if (this.style === 'header') {
+      metrageItem.classList.add('is-metrage');
+    }
     this.classes.forEach((c: string) => {
       metrageItem.classList.add(c);
     });
@@ -45,8 +48,9 @@ export class MetrageItemRow {
 export class MetrageStack {
   stack: Array<MetrageItemRow>;
 
-  constructor(...args: Array<MetrageItemRow>) {
-    this.stack = args;
+  constructor(...args: Array<MetrageItemRow | null>) {
+    // @ts-ignore
+    this.stack = args.filter(value => value !== null);
   }
 
   build(): HTMLDivElement {
@@ -153,8 +157,10 @@ export class InputFormField {
   id: string;
   name: string;
   input: HTMLInputElement;
+  classList:string[];
 
-  constructor() {
+  constructor( classList:string[]|null = null ) {
+    this.classList = classList ? classList : new Array('');
     this.id = window.Form?.createId('input-formfield');
     this.name = window.Form?.createId('input-name');
     this.input = Input.build('text', ['form-input', 'w-input'], {'maxlength': 256, 'name': this.name, 'id': this.id});
@@ -166,6 +172,11 @@ export class InputFormField {
 
   build(title: string, tooltip: string | null = null): HTMLDivElement {
     const formField: HTMLDivElement = Div.build(['form-field']);
+    this.classList.forEach(function (c: string): void {
+      if (c)
+        formField.classList.add(c);
+    });
+
     const formLabelWrapper: HTMLDivElement = Div.build(['form-label-wrapper']);
     formField.append(formLabelWrapper);
     const label: HTMLLabelElement = Label.build(['form-label'], {'for': this.id});
