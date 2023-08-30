@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.5.0
+
+### Minor Changes
+
+- c04630b: Refactor based on comments from Mirato
+
 ## 0.4.0
 
 ### Minor Changes
