@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.5.1
+
+### Patch Changes
+
+- f164aaa: Fix checkboxes
+
 ## 0.5.0
 
 ### Minor Changes
