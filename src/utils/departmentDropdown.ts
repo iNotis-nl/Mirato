@@ -1,6 +1,7 @@
 import {Department} from "./department.js";
 import {DropDown, InputFormField} from "$utils/factory";
 import {Div} from "$utils/html";
+import {createId} from "$utils/helpers";
 
 
 export class DepartmentDropdown {
@@ -13,7 +14,7 @@ export class DepartmentDropdown {
 
   constructor(department: Department) {
     // @ts-ignore
-    this.id = window.Form.createId('department');
+    this.id = createId('department');
     this.department = department;
     this.name = 'Afdeling';
     this.nameInput = new InputFormField();

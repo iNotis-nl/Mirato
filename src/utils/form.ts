@@ -1,18 +1,27 @@
 import {Department} from "$utils/department";
 import {DepartmentDropdown} from "$utils/departmentDropdown";
-import {Anchor} from "$utils/html";
+import {Anchor, Div} from "$utils/html";
 import {DropDownGroup} from "$utils/factory";
-import {ExtraRoomsLayout, FacilitiesLayout, MeetingSpaceLayout, OfficeLayout, OtherRoomsLayout} from "$utils/variables";
+import {
+  ExtraRoomsLayout,
+  FacilitiesLayout,
+  GeneralLayout,
+  MeetingSpaceLayout,
+  OfficeLayout,
+  OtherRoomsLayout, WorkLayout
+} from "$utils/variables";
+import {officeLayoutIn, toggleModeDepartments} from "$utils/inputs";
 
 export class Form {
   private _officeLayout: OfficeLayout | null = null;
   globalDepartment: Department;
   departments: Array<Department> = new Array<Department>();
+  generalLayout: GeneralLayout;
+  workLayout: WorkLayout;
   meetingSpaceLayout: MeetingSpaceLayout;
   facilitiesLayout: FacilitiesLayout;
   otherRoomsLayout: OtherRoomsLayout;
   extraRoomsLayout: ExtraRoomsLayout;
-  ids: Array<string> = new Array<string>();
 
   dropdownGroup: DropDownGroup;
   addDepartmentBtn: HTMLAnchorElement;
@@ -22,14 +31,20 @@ export class Form {
   globalTab: HTMLDivElement = null;
 
   constructor() {
+    this._officeLayout = new OfficeLayout('LayoutBasic');
     this.dropdownGroup = new DropDownGroup();
     this.globalDepartment = new Department();
+    this.workLayout = new WorkLayout();
+    this.generalLayout = new GeneralLayout();
     this.meetingSpaceLayout = new MeetingSpaceLayout();
     this.facilitiesLayout = new FacilitiesLayout();
     this.otherRoomsLayout = new OtherRoomsLayout();
     this.extraRoomsLayout = new ExtraRoomsLayout();
     this.addDepartmentBtn = Anchor.build(['button', 'w-button']);
     this.addDepartmentBtn.text = 'Afdeling toevoegen';
+
+    this.generalLayout.addOfficeLayout(officeLayoutIn()?.parentElement?.parentElement?.parentElement?.parentElement);
+    this.workLayout.addDepartmentTab(document.getElementsByClassName('tabs w-tabs')[0]);
   }
 
   init(): void {
@@ -43,10 +58,12 @@ export class Form {
     this.departmentTab.append(this.addDepartmentBtn);
 
     let form: HTMLFormElement = document.getElementById('wf-form-metrageTool') as HTMLFormElement;
+    form.prepend(this.workLayout.build());
+    form.prepend(this.generalLayout.build());
     form.append(this.meetingSpaceLayout.build());
     form.append(this.facilitiesLayout.build());
-    form.append(this.otherRoomsLayout.build());
     form.append(this.extraRoomsLayout.build());
+    form.append(this.otherRoomsLayout.build());
 
     this.addDepartmentBtn.removeEventListener('click', this.addDepartmentAction);
     this.addDepartmentBtn.addEventListener('click', this.addDepartmentAction);
@@ -71,24 +88,6 @@ export class Form {
     let departmentDropdown: DepartmentDropdown = new DepartmentDropdown(departmentForm);
     this.departments.push(departmentForm);
     this.dropdownGroup.append(departmentDropdown.build());
-  }
-
-  // @ts-ignore
-  createId(namespace: string) {
-    let id: string = namespace + '-' + this.createRandom(5);
-    if (this.ids.indexOf(id) > -1 || document.getElementById(id) !== null) {
-      return this.createId(namespace);
-    }
-
-    return id;
-  }
-
-  createRandom(length: number) {
-    let rand: string = crypto.randomUUID().replace(/[^0-9aeiouy]/gi, '');
-    while (rand.length < length) {
-      rand = rand + crypto.randomUUID().replace(/[^0-9aeiouy]/gi, '');
-    }
-    return rand.substring(0, length);
   }
 }
 

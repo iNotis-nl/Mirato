@@ -1,16 +1,16 @@
 import {CheckboxLabel, Div, Input} from "$utils/html";
-import {ExtraRoom, Facility, getIndex, MeetingRoom, parseIntOrZero} from "$utils/helpers";
+import {ExtraRoom, Facility, getIndex, MeetingRoom, parseIntOrZero, TooltipIcon} from "$utils/helpers";
 import {InputFormField} from "$utils/factory";
 
 /**
- * List of Constants used in the tool to calculate the m2 needed
+ * List of Constants used in the tool to calculate the m² needed
  */
 export const MODE_DEPARTMENT: string = 'department';
 export const MODE_GLOBAL: string = 'global';
 
 
 export class OfficeLayout {
-  type: string;
+  type: string = 'LayoutBasic';
   multiplier: number = 1;
 
   multiplierOptions: { [key: string]: number } = {
@@ -27,70 +27,89 @@ export class OfficeLayout {
 
 export class DepartmentLayout {
   name: string = "Naam afdeling";
-  numEmployees: number = 0;
-  expectedGrowth: number = 0;
   numWorkstations: number = 0;
   numCEORooms: number = 0;
   num1PersonRooms: number = 0;
   num2PersonRooms: number = 0;
   num4PersonRooms: number = 0;
   num6PersonRooms: number = 0;
+  extraSpaces: number = 0;
 
   get totalDepartmentM2(): number {
     return this.numWorkstationsM2 + this.totalPersonsRoomsM2;
   }
 
-  get totalGrowth(): number {
-    let subTotalDepartment: number = this.totalDepartmentM2;
-    let totalDepartment: number = Math.ceil(subTotalDepartment * (this.expectedGrowth / 100));
-    console.log('- ', '"' + this.name + '"', 'was ', subTotalDepartment, 'm2 *', this.expectedGrowth + '%', ' = ', totalDepartment);
-    return totalDepartment;
+  get totalDepartmentPeople(): number {
+    return this.numWorkstations + this.numCEORooms + this.num1PersonRooms
+      + (this.num2PersonRooms * 2) + (this.num4PersonRooms * 4)
+      + (this.num6PersonRooms * 6);
+  }
+
+  get totalDepartmentNumber(): number {
+    return this.numWorkstations + this.numCEORooms + this.num1PersonRooms
+      + this.num2PersonRooms + this.num4PersonRooms
+      + this.num6PersonRooms;
   }
 
   get numWorkstationsM2(): number {
     if (this.numWorkstations > 0) {
-      console.log(' -', this.numWorkstations, 'Workstations * 6 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.numWorkstations * 6 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.numWorkstations, 'Workstations * 6 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.numWorkstations * 6 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
 
   get numCEORoomsM2(): number {
     if (this.numCEORooms > 0) {
-      console.log(' -', this.numCEORooms, 'Workstations * 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.numCEORooms * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.numCEORooms, 'Workstations * 20 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.numCEORooms * 20 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
 
   get num1PersonRoomsM2(): number {
     if (this.num1PersonRooms > 0) {
-      console.log(' -', this.num1PersonRooms, '1-person room * 12 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.num1PersonRooms * 12 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.num1PersonRooms, '1-person room * 12 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.num1PersonRooms * 12 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
 
   get num2PersonRoomsM2(): number {
     if (this.num2PersonRooms > 0) {
-      console.log(' -', this.num2PersonRooms, '2-person room * 14 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.num2PersonRooms * 14 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.num2PersonRooms, '2-person room * 14 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.num2PersonRooms * 14 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
 
   get num4PersonRoomsM2(): number {
     if (this.num4PersonRooms > 0) {
-      console.log(' -', this.num4PersonRooms, '4-person room * 22 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.num4PersonRooms * 22 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.num4PersonRooms, '4-person room * 22 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.num4PersonRooms * 22 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
 
   get num6PersonRoomsM2(): number {
     if (this.num6PersonRooms > 0) {
-      console.log(' -', this.num6PersonRooms, '6-person room * 30 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-      return Math.ceil(this.num6PersonRooms * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
+      console.log(' -', this.num6PersonRooms, '6-person room * 30 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.num6PersonRooms * 30 * window.Form?.officeLayout?.multiplier);
+    }
+    return 0;
+  }
+
+  get numExtraSpacesM2(): number {
+    if (this.extraSpaces > 0) {
+      console.log(' -', this.extraSpaces, 'aanlandplekken * 2 m² *', window.Form?.officeLayout?.multiplier);
+      // @ts-ignore
+      return Math.ceil(this.extraSpaces * 2 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
   }
@@ -104,49 +123,180 @@ export class DepartmentLayout {
   }
 }
 
+export class GeneralLayout {
+  private name: string = 'Algemeen';
+  private readonly stack: HTMLDivElement;
+  private readonly inputOrganisationName: InputFormField;
+  private officeLayout: HTMLElement | null | undefined;
+  private readonly inputExpectedGrowth: InputFormField;
+  private readonly inputNumEmployees: InputFormField;
+  private _organisationName: string = '';
+  private _numEmployees: number = 0;
+  private _expectedGrowth: number = 0;
+
+
+  constructor() {
+    this.stack = Div.build(['stack']);
+    let heading: HTMLDivElement = Div.build(['heading-small']);
+    heading.innerText = this.name;
+    this.stack.append(heading);
+
+    this.inputOrganisationName = new InputFormField();
+    this.inputExpectedGrowth = new InputFormField();
+    this.inputNumEmployees = new InputFormField();
+  }
+
+  addOfficeLayout(officeLayout: HTMLElement | null | undefined): void {
+    this.officeLayout = officeLayout;
+  }
+
+  get organisationName(): string {
+    return this._organisationName;
+  }
+
+  get numEmployees(): number {
+    return this._numEmployees;
+  }
+
+  get expectedGrowth(): number {
+    return this._expectedGrowth;
+  }
+
+  build(): HTMLDivElement {
+    this.stack.append(this.inputOrganisationName.build('Organisatie'));
+    this.stack.append(this.inputNumEmployees.build('Aantal medewerkers', 'Headcount totaal aantal medewerkers ongeacht fulltime/parttime'));
+    this.stack.append(this.inputExpectedGrowth.build('Verwachte groei % in 5 jaar', 'Verwacht groeipercentage in totaal aantal medewerkers'));
+
+    if (this.officeLayout) {
+      let oldOfficeLayoutStack: HTMLElement | null = this.officeLayout.parentElement;
+      this.stack.append(this.officeLayout);
+      oldOfficeLayoutStack?.remove();
+    }
+
+    // Add Events
+    this.inputOrganisationName.addEventListener('keyup', (e: KeyboardEvent) => {
+      // @ts-ignore
+      this._organisationName = e.target.value.trim();
+      // @ts-ignore
+      window.Output.reset();
+    });
+    this.inputNumEmployees.addEventListener('keyup', (e: KeyboardEvent) => {
+      // @ts-ignore
+      this._numEmployees = parseIntOrZero(e.target.value);
+      // @ts-ignore
+      window.Output.reset();
+    });
+    this.inputExpectedGrowth.addEventListener('keyup', (e: KeyboardEvent) => {
+      // @ts-ignore
+      this._expectedGrowth = parseIntOrZero(e.target.value);
+      // @ts-ignore
+      window.Output.reset();
+    });
+
+    return this.stack;
+  }
+}
+
+export class WorkLayout {
+  private name: string = 'Werken';
+  private readonly stack: HTMLDivElement;
+  private departmentTab: Element | null | undefined;
+
+  constructor() {
+    this.stack = Div.build(['stack']);
+    let heading: HTMLDivElement = Div.build(['heading-small']);
+    heading.innerText = this.name;
+    let tooltip: HTMLImageElement = TooltipIcon('Kies voor ‘Globaal’ voor de invoer van data voor de totale organisatie óf ‘Per afdeling’ voor een uitsplitsing per afdeling');
+    heading.append(tooltip);
+    this.stack.append(heading);
+  }
+
+  public addDepartmentTab(departmentTag: Element | null | undefined): void {
+    this.departmentTab = departmentTag;
+  }
+
+  build(): HTMLDivElement {
+    if (this.departmentTab)
+      this.stack.append(this.departmentTab);
+
+    return this.stack;
+  }
+}
+
 export class MeetingSpaceLayout {
   private name: string = 'Vergaderen';
   private readonly stack: HTMLDivElement;
   private readonly formField: HTMLDivElement;
+  private readonly infoTotalMeetingChairs: HTMLDivElement;
 
-
-  // Default MeetingRoom
+  // Default MeetingRooms
   private defaults: MeetingRoom[] = [
-    new MeetingRoom('Aantal belplekken', (amount: number): number => {
+    new MeetingRoom('Aantal 1p belplekken', (amount: number): number => {
+        if (amount > 0) {
+          console.log(' - Aantal belplekken = ', amount, '* 4 m² *', window.Form?.officeLayout?.multiplier);
+          // @ts-ignore
+          return Math.ceil(amount * 4 * window.Form?.officeLayout?.multiplier);
+        }
+        return 0;
+      }, (amount: number): number => {
+        return amount;
+      }, '1p belplek: 4m². Gemiddeld wordt er in kantoren 1 belplek per 6 werkplekken voorzien'
+    ),
+
+    new MeetingRoom('Aantal 1-2p focus rooms', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - Aantal belplekken = ', amount, '* 4 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-        return Math.ceil(amount * 4 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - 1-2p focus room = ', amount, '* 7 m² *', window.Form?.officeLayout?.multiplier);
+        // @ts-ignore
+        return Math.ceil(amount * 8 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
-    new MeetingRoom('Aantal vergaderruimtes voor 2-4 personen', (amount: number): number => {
+    }, (amount: number): number => {
+      return amount * 2;
+    }, '1-2p focus room: 7m²'),
+
+    new MeetingRoom('Aantal 2-4p vergaderruimtes', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - 2-people conference = ', amount, '* 8 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-        return Math.ceil(amount * 8 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - 2-people conference = ', amount, '* 8 m² *', window.Form?.officeLayout?.multiplier);
+        // @ts-ignore
+        return Math.ceil(amount * 8 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
-    new MeetingRoom('Aantal vergaderruimtes voor 6-8 personen', (amount: number): number => {
+    }, (amount: number): number => {
+      return amount * 4;
+    }, ' 2-4p vergaderruimte: 8m²'),
+
+    new MeetingRoom('Aantal 6-8p vergaderruimtes', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - 6-people conference = ', amount, '* 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-        return Math.ceil(amount * 20 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - 6-people conference = ', amount, '* 20 m² *', window.Form?.officeLayout?.multiplier);
+        // @ts-ignore
+        return Math.ceil(amount * 20 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
-    new MeetingRoom('Aantal vergaderruimtes voor 10-20 personen', (amount: number): number => {
+    }, (amount: number): number => {
+      return amount * 8;
+    }, '6-8p vergaderruimte: 20m²'),
+
+    new MeetingRoom('Aantal 10-20p vergaderruimtes', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - 10-people conference = ', amount, '* 30 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-        return Math.ceil(amount * 30 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - 10-people conference = ', amount, '* 30 m² *', window.Form?.officeLayout?.multiplier);
+        // @ts-ignore
+        return Math.ceil(amount * 30 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
-    new MeetingRoom('Aantal vergaderruimtes tot 50 personen', (amount: number): number => {
+    }, (amount: number): number => {
+      return amount * 20;
+    }, '10-20p vergaderruimte: 30m²'),
+
+    new MeetingRoom('Aantal vergaderruimtes tot 50p', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - 50-people conference = ', amount, '* 20 m2 *', (window.Form?.officeLayout?.multiplier ?? 1));
-        return Math.ceil(amount * 50 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - 50-people conference = ', amount, '* 20 m² *', window.Form?.officeLayout?.multiplier);
+        // @ts-ignore
+        return Math.ceil(amount * 50 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
+    }, (amount: number): number => {
+      return amount * 50;
+    }, 'Vergaderruimte tot 50p: 50m²'),
   ];
 
   constructor() {
@@ -156,6 +306,8 @@ export class MeetingSpaceLayout {
     this.stack.append(heading);
     this.formField = Div.build(['form-field']);
     this.stack.append(this.formField);
+    this.infoTotalMeetingChairs = Div.build(['info']);
+    this.stack.append(this.infoTotalMeetingChairs);
   }
 
   list(): MeetingRoom[] {
@@ -175,18 +327,29 @@ export class MeetingSpaceLayout {
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: MeetingRoom, i: number): void => {
-      const el: HTMLDivElement = new InputFormField(['index-' + i]).build(item.name);
-      el.onchange = (e: Event): void => {
+      const el: HTMLDivElement = new InputFormField(['index-' + i]).build(item.name, item.tooltip);
+      el.onkeyup = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let amount: number = parseIntOrZero(target.value);
         let index: number = getIndex(el.classList.toString().split(' '));
         this.defaults[index].amount = amount;
         window.Output?.reset();
+        this.updateMeetingChairs();
       };
       this.formField.append(el);
     });
+    this.updateMeetingChairs();
 
     return this.stack;
+  }
+
+  updateMeetingChairs(): void {
+    let totalChairs: number = 0;
+    this.defaults.forEach((item: MeetingRoom, i: number): void => {
+      totalChairs += item.callbackForPeople(item.amount);
+    });
+    this.infoTotalMeetingChairs.innerHTML = 'Totaal aantal vergaderplekken: ' + totalChairs;
+    this.infoTotalMeetingChairs.append(TooltipIcon('Totaal aantal vergaderstoelen op basis van de maximale bezetting'));
   }
 }
 
@@ -197,76 +360,168 @@ export class FacilitiesLayout {
 
   // Default Facilities
   private defaults: Facility[] = [
-    new Facility('Pantry / Koffiecorner', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Pantry / Koffiecorner = 15m2 * ', Math.ceil(numEmployees / 50), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(15 * Math.ceil(numEmployees / 50) * (window.Form?.officeLayout?.multiplier ?? 1));
-      }
-      return 0;
-    }),
-    new Facility('Lunchruimte', false, (numEmployees: number, subTotal: number, numWorkstations: number): number => {
+    new Facility('Bemande receptie', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Lunchruimte = 3m2 * ', numWorkstations, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(numWorkstations * 3 * (window.Form?.officeLayout?.multiplier ?? 1));
+        console.log(' - Bemande receptie = 30m² * ', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(30 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Grootkeuken', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Grootkeuken = 30m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(30 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Garderobe', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Garderobe = 0.05m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * 0.05 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Lounge', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Lounge = 30m2 * ', Math.ceil(numEmployees / 100), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(30 * Math.ceil(numEmployees / 100) * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Lockers', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Lockers = 0.05m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * 0.05 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Gym', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Gym = 55m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(55 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Repro', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Repro = 0.2m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * 0.2 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Game/Funruimte', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Game/Funruimte = 40m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(40 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Serverruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (subtotalM3 > 0) {
+        console.log(' - Serverruimte = 6m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Bemande receptie', false, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Bemande receptie = 30m2 * ', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(30 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Pantry / Koffiecorner', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Pantry / Koffiecorner = 15m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Lockers', true, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Lockers = 0.05m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(numEmployees * 0.05 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Lunchruimte', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Lunchruimte = 3m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * 3 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Garderobe', true, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Garderobe = 0.05m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(numEmployees * 0.05 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Grootkeuken', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Grootkeuken = 30m² *', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(30 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
-    new Facility('Repro', true, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Repro = 0.20m2 * ', numEmployees, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(numEmployees * 0.20 * (window.Form?.officeLayout?.multiplier ?? 1));
+
+    new Facility('Lounge', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Lounge = 15m² *', (1 + Math.floor(numWorkstations / 100)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 100)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
+
+    new Facility('Gym', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Gym = 50m² *', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(50 * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }),
+
+    new Facility('Game/Funruimte', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Game/Funruimte = 40m² *', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(40 * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }),
+
+    new Facility('Kolfruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Kolfruimte = 5m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(5 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, true, 'Verplichte voorziening conform ARBO norm'),
+
+    new Facility('Bidruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Bidruimte = 6m² *', (1 + Math.floor(numWorkstations / 80)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 80)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, true, 'Verplichte voorziening conform ARBO norm'),
+
+    new Facility('Opslagruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Opslagruimte = 20m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(20 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, true),
+
+    new Facility('Schoonmaakhok', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Schoonmaakhok = 6m² *', 1 + (Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, true),
+
+    new Facility('Douches', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Douches = 10m² *', 1 + (Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(10 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, true, 'Douches 10m2 per 50 personen voorzien voor m/v/x'),
+
+    new Facility('Toiletten', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Toiletten = 5.5m² *', (1 + Math.floor(numWorkstations / 25)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(5.5 * (1 + Math.floor(numWorkstations / 25)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, false, 'Verplichte voorziening conform ARBO norm: 2 toiletten per 30 personen'),
+
+    new Facility('MIVA', true, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - MIVA = 3.7m² *', (1 + Math.floor(((numWorkstations / 25) * 2) / 10)), '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(3.7 * (1 + Math.floor(((numWorkstations / 25) * 2) / 10)) * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }, false, 'Mindervalide toilet: verplichte individuele voorziening conform de ARBO norm, tenzij deze in een verzamelgebouw als algemene voorziening aanwezig is'),
+
   ];
 
   constructor() {
@@ -278,15 +533,21 @@ export class FacilitiesLayout {
     this.stack.append(this.formField);
   }
 
+  add(extraRoom: Facility): void {
+    this.defaults.push(extraRoom);
+    window.Output?.reset();
+    window.Form?.init();
+  }
+
   list(): Facility[] {
     return this.defaults;
   }
 
-  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+  totalM2(subtotalM3: number, numWorkspaces: number): number {
     let totalM2: number = 0;
     this.defaults.forEach((facility: Facility): void => {
       if (facility.active) {
-        totalM2 += facility.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+        totalM2 += facility.callbackFn(subtotalM3, numWorkspaces);
       }
     })
     return totalM2;
@@ -295,14 +556,18 @@ export class FacilitiesLayout {
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: Facility, i: number): void => {
-      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
-      el.onchange = (e: Event): void => {
+      let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
+      el.onkeyup = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
         this.defaults[index].active = active;
         window.Output?.reset();
       };
+      if (item.tooltip) {
+        let tooltip: HTMLImageElement = TooltipIcon(item.tooltip);
+        el.append(tooltip);
+      }
       this.formField.append(el);
     });
 
@@ -317,58 +582,23 @@ export class OtherRoomsLayout {
 
   // Default OtherRooms
   private defaults: Facility[] = [
-    new Facility('Verkeersruimte', true, (numEmployees: number, subtotalM3: number): number => {
+    new Facility('Verkeersruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Verkeersruimte = 0.14m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return subtotalM3 ? Math.ceil(subtotalM3 * 0.14 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+        console.log(' - Verkeersruimte = 15% * ', subtotalM3, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return subtotalM3 ? Math.ceil(subtotalM3 * 0.15 * window.Form?.officeLayout?.multiplier) : 0;
       }
       return 0;
-    }, true),
-    new Facility('Aanlandplekken', true, (numEmployees: number, subtotalM3: number, numWorkspaces: number): number => {
-      if (numWorkspaces > 0) {
-        console.log(' - Aanlandplekken = 0.5m2 * ', numWorkspaces, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return numWorkspaces ? Math.ceil(numWorkspaces * 0.5 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
-      }
-      return 0;
-    }),
-    new Facility('Serverruimte', true, (numEmployees: number, subtotalM3: number): number => {
+    }, true, '15% x totaal m²: verkeersruimte omvat loopruimte, trappen, gangen, liften en dergelijke'),
+
+    new Facility('Gridloss', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Serverruimte = 0.01m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return subtotalM3 ? Math.ceil(subtotalM3 * 0.01 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
+        console.log(' - Gridloss = 5% * ', subtotalM3, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(subtotalM3 * 0.05 * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }),
-    new Facility('Kolfruimte', true, (numEmployees: number): number => {
-      numEmployees = numEmployees <= 0 ? 1 : numEmployees;
-      console.log(' - Kolfruimte = 5m2 * ', Math.ceil(numEmployees / 80), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-      return Math.ceil(5 * Math.ceil(numEmployees / 80) * (window.Form?.officeLayout?.multiplier ?? 1));
-    }, true),
-    new Facility('Bidruimte', true, (numEmployees: number): number => {
-      numEmployees = numEmployees <= 0 ? 1 : numEmployees;
-      console.log(' - Bidruimte = 6m2 * ', Math.ceil(numEmployees / 80), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-      return Math.ceil(6 * Math.ceil(numEmployees / 80) * (window.Form?.officeLayout?.multiplier ?? 1));
-    }, true),
-    new Facility('Toilets', true, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - Toilets = 5.5m2 * ', Math.ceil(numEmployees / 30), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(5.5 * Math.ceil(numEmployees / 30) * (window.Form?.officeLayout?.multiplier ?? 1));
-      }
-      return 0;
-    }),
-    new Facility('MIVA', true, (numEmployees: number): number => {
-      if (numEmployees > 0) {
-        console.log(' - MIVA = 3.7m2 * ', Math.ceil(((numEmployees / 30) * 2) / 10), '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return Math.ceil(3.7 * Math.ceil(((numEmployees / 30) * 2) / 10) * (window.Form?.officeLayout?.multiplier ?? 1));
-      }
-      return 0;
-    }),
-    new Facility('Gridloss', true, (numEmployees: number, subtotalM3: number): number => {
-      if (subtotalM3 > 0) {
-        console.log(' - Gridloss = 0.1m2 * ', subtotalM3, '*', (window.Form?.officeLayout?.multiplier ?? 1))
-        return subtotalM3 ? Math.ceil(subtotalM3 * 0.1 * (window.Form?.officeLayout?.multiplier ?? 1)) : 0;
-      }
-      return 0;
-    }),
+    }, true, '5% x totaal m²: verlies op basis van stramienmaten en incourant vloeroppervlak'),
   ];
 
   constructor() {
@@ -384,11 +614,11 @@ export class OtherRoomsLayout {
     return this.defaults;
   }
 
-  totalM2(numEmployees: number, subtotalM3: number, numWorkspaces: number): number {
+  totalM2(subtotalM3: number, numWorkspaces: number): number {
     let totalM2: number = 0;
     this.defaults.forEach((facility: Facility): void => {
       if (facility.active) {
-        totalM2 += facility.callbackFn(numEmployees, subtotalM3, numWorkspaces);
+        totalM2 += facility.callbackFn(subtotalM3, numWorkspaces);
       }
     })
     return totalM2;
@@ -397,14 +627,18 @@ export class OtherRoomsLayout {
   build(): HTMLDivElement {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: Facility, i: number): void => {
-      const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
-      el.onchange = (e: Event): void => {
+      let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
+      el.onkeyup = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
         this.defaults[index].active = active;
         window.Output?.reset();
       };
+      if (item.tooltip) {
+        let tooltip: HTMLImageElement = TooltipIcon(item.tooltip);
+        el.append(tooltip);
+      }
       this.formField.append(el);
     });
 
@@ -425,6 +659,8 @@ export class ExtraRoomsLayout {
     this.stack = Div.build(['stack']);
     let heading: HTMLDivElement = Div.build(['heading-small']);
     heading.innerText = this.name;
+    let tooltip: HTMLImageElement = TooltipIcon('Voeg hier indien gewenst een faciliteit toe met daarbij de benodigde m²');
+    heading.append(tooltip);
     this.stack.append(heading);
 
     this.formField = Div.build(['form-field']);
@@ -441,20 +677,18 @@ export class ExtraRoomsLayout {
     this.formButton = document.createElement('a');
     this.formButton.classList.add('button', 'w-button');
     this.formButton.text = 'Ruimte toevoegen';
-    this.formButton.onclick = () => {
+    this.formButton.onclick = (): void => {
       if (this.inputName.value !== '' && this.inputM2.value !== '') {
-        this.add(new ExtraRoom(this.inputName.value, parseInt(this.inputM2.value)));
+        let label: string = this.inputName.value + ' (' + parseInt(this.inputM2.value) + 'm²)';
+        let value: number = parseInt(this.inputM2.value);
+        window.Form?.facilitiesLayout.add(new Facility(label, true, () => {
+          return value;
+        }));
         this.inputName.value = '';
         this.inputM2.value = '';
       }
     };
     extraRooms.append(this.formButton);
-  }
-
-  add(extraRoom: ExtraRoom): void {
-    this.defaults.push(extraRoom);
-    window.Output?.reset();
-    window.Form?.init();
   }
 
   list(): ExtraRoom[] {
@@ -486,7 +720,7 @@ export class ExtraRoomsLayout {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: ExtraRoom, i: number): void => {
       const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
-      el.onchange = (e: Event): void => {
+      el.onkeyup = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
