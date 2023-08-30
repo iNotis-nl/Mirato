@@ -4,9 +4,9 @@ import { Output } from '$utils/output';
 import { Form } from '$utils/form';
 
 window.Webflow ||= [];
-window.Output = new Output();
 window.Form = new Form();
-window.Webflow.push(() => {
+window.Output = new Output();
+window.Webflow.push(():void => {
   console.log('Mirato Tool Startup');
   initForm();
   initEvents();

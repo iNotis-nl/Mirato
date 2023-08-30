@@ -1,3 +1,5 @@
+import {createId} from "$utils/helpers";
+
 export class Div {
   static build(classList: Array<string> | null = null, attributes: Object | null = null): HTMLDivElement {
     return Element.build('div', classList, attributes) as HTMLDivElement;
@@ -57,7 +59,7 @@ export class Element {
 
 export class CheckboxLabel {
   static build(text: string, value: string, selected: boolean = false, classList: Array<string> | null = null, readonly: boolean = false): HTMLLabelElement {
-    const id = window.Form?.createId('CheckboxLabel');
+    const id: string = createId('CheckboxLabel');
     const label: HTMLLabelElement = Label.build(['w-checkbox', 'form-checkbox']);
     classList = classList ? classList : new Array('');
     classList.forEach(function (c: string): void {

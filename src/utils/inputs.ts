@@ -4,7 +4,13 @@
  */
 
 export const officeLayoutIn = () => {
-  return document.getElementById('metrageLayoutIn') as HTMLInputElement;
+  return document.getElementById('metrageLayoutIn') as HTMLSelectElement;
+};
+
+export const getOfficeLayoutChoice = (): string => {
+  let index: number = officeLayoutIn().options.selectedIndex;
+  let option: HTMLOptionElement | null = officeLayoutIn().options.item(Math.max(1,index));
+  return option?.innerText ?? '';
 };
 
 export const toggleModeDepartments = () => {
