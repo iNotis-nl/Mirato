@@ -557,7 +557,7 @@ export class FacilitiesLayout {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: Facility, i: number): void => {
       let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
-      el.onkeyup = (e: Event): void => {
+      el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
@@ -628,7 +628,7 @@ export class OtherRoomsLayout {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: Facility, i: number): void => {
       let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
-      el.onkeyup = (e: Event): void => {
+      el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
@@ -720,7 +720,7 @@ export class ExtraRoomsLayout {
     this.formField.innerHTML = '';
     this.defaults.forEach((item: ExtraRoom, i: number): void => {
       const el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i]);
-      el.onkeyup = (e: Event): void => {
+      el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
         let index: number = getIndex(el.classList.toString().split(' '));
