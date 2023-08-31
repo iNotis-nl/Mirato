@@ -16,7 +16,7 @@ export class Output {
 
   constructor() {
     this.outputStack = document.getElementById('metrage-output') as HTMLDivElement;
-    this.formContent = Div.build(['stack', 'gap-small'], {'id': 'tool-m2'});
+    this.formContent = Div.build(['stack', 'gap-small'], {'id': 'tool-m2', 'style': 'border:none'});
     this.outputStack.innerHTML = '';
     this.outputStack.append(this.formContent);
 
@@ -47,7 +47,7 @@ export class Output {
     console.log('Rebuilding the Output', this._mode);
     this.formContent.innerHTML = '';
 
-    let stack: HTMLDivElement = Div.build(['stack', 'gap-small']);
+    let stack: HTMLDivElement = Div.build(['stack', 'gap-small'], {'style': 'border:none'});
     const that = this;
 
     let numEmployees: number = window.Form?.generalLayout.numEmployees ?? 0;
@@ -134,6 +134,13 @@ export class Output {
     stack.append(new MetrageItemRow('Aanlandplekken', totalExtraPlacesAllDepartments, totalExtraPlacesM2AllDepartments).build());
 
     stack.append(Div.build(['tool-m2_divider', 'is-soft']));
+
+    // @ts-ignore
+    if (this._mode === MODE_DEPARTMENT && window.Form?.departments.length > 2) {
+      stack.append(Div.build(['page-break'], {'style': 'page-break-after:always;'}));
+      document.getElementsByClassName('section is_tool-m2')[0].setAttribute('style', 'position:inherit');
+    }
+
 
     {
       /////////////////////////////////////////////////////////////
