@@ -466,7 +466,7 @@ export class FacilitiesLayout {
         return Math.ceil(5 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }, true, 'Verplichte voorziening conform ARBO norm'),
+    }, false, 'Verplichte voorziening conform ARBO norm'),
 
     new Facility('Bidruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
@@ -475,7 +475,7 @@ export class FacilitiesLayout {
         return Math.ceil(6 * (1 + Math.floor(numWorkstations / 80)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }, true, 'Verplichte voorziening conform ARBO norm'),
+    }, false, 'Verplichte voorziening conform ARBO norm'),
 
     new Facility('Opslagruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
@@ -484,7 +484,7 @@ export class FacilitiesLayout {
         return Math.ceil(20 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }, true),
+    }, false),
 
     new Facility('Schoonmaakhok', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
@@ -493,7 +493,7 @@ export class FacilitiesLayout {
         return Math.ceil(6 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }, true),
+    }, false),
 
     new Facility('Douches', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
@@ -502,7 +502,7 @@ export class FacilitiesLayout {
         return Math.ceil(10 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
-    }, true, 'Douches 10m2 per 50 personen voorzien voor m/v/x'),
+    }, false, 'Douches 10m2 per 50 personen voorzien voor m/v/x'),
 
     new Facility('Toiletten', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
