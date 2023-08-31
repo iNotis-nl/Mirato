@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.5.2
+
+### Patch Changes
+
+- c9e12ea: Fixed paging, fixed readonly states of Facilities
+
 ## 0.5.1
 
 ### Patch Changes
