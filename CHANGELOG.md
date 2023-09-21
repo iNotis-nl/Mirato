@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.6.0
+
+### Minor Changes
+
+- ee4b585: Refactor using new div-structure
+
 ## 0.5.2
 
 ### Patch Changes
