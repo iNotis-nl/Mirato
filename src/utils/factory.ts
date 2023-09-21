@@ -4,79 +4,69 @@
 import {Div, Input, Label} from "$utils/html";
 import {createId, TooltipIcon} from "$utils/helpers";
 
-export class MetrageItemRow {
-  title: string;
-  qty: number | string | null;
-  m2: number | string | null | undefined;
-  style: string;
-  classes: string[];
-  tooltip: string | null;
-
-  constructor(title: string, qty: number | string | null, m2: number | string | null | undefined, style: string = 'default', classes: string[] = []) {
-    this.title = title;
-    this.qty = qty;
-    this.m2 = m2;
-    this.style = style;
-    this.classes = classes;
-    this.tooltip = null;
-    if (this.style === 'subheader') {
-      this.qty = 'Aantal';
-      this.m2 = 'M<sup>2</sup>';
-    }
-  }
-
-  addTooltip(tooltip: string): void {
-    this.tooltip = tooltip;
-  }
-
-  build(): HTMLDivElement {
-    const titleDiv: HTMLDivElement = Div.build(['tool-m2_outcome-item', this.style === 'muted' ? 'text-style-muted' : '']);
-    const metrageItem: HTMLElement = document.createElement(this.style === 'header' ? 'H3' : this.style === 'subheader' ? 'H4' : 'div');
-    metrageItem.classList.add('tool-m2_outcome-title-label');
-    if (this.style === 'header') {
-      metrageItem.classList.add('is-metrage');
-    }
-    this.classes.forEach((c: string) => {
-      metrageItem.classList.add(c);
-    });
-    metrageItem.innerHTML = this.title;
-    if (this.tooltip) {
-      metrageItem.append(TooltipIcon(this.tooltip));
-    }
-    titleDiv.append(metrageItem);
-
-    const metrageQtyOut: HTMLElement = document.createElement(this.style === 'header' ? 'H3' : this.style === 'subheader' ? 'H4' : 'div');
-    metrageQtyOut.classList.add('tool-m2_outcome-item-data');
-    metrageQtyOut.innerHTML = String(this.qty);
-    titleDiv.append(metrageQtyOut);
-
-    const metrageM2Out: HTMLElement = document.createElement(this.style === 'header' ? 'H3' : this.style === 'subheader' ? 'H4' : 'div');
-    metrageM2Out.classList.add('tool-m2_outcome-item-data');
-    metrageM2Out.innerHTML = String(this.m2);
-    titleDiv.append(metrageM2Out);
-
-    return titleDiv;
+export class MetrageGroup {
+  static build(){
+    return  Div.build(['metrage-output_group']);
   }
 }
 
-export class MetrageStack {
-  stack: Array<MetrageItemRow>;
-
-  constructor(...args: Array<MetrageItemRow | null>) {
-    // @ts-ignore
-    this.stack = args.filter(value => value !== null);
+export class MetrageHeaderRow {
+  static build(title: string, value1: string | null = null, value2: string | null = null): HTMLDivElement {
+    let groupHeader: HTMLDivElement = Div.build(['metrage-output_group-header']);
+    let headerName: HTMLDivElement = Div.build(['metrage-output_header-name']);
+    headerName.innerHTML = title;
+    groupHeader.append(headerName);
+    if (value1) {
+      let headerValue1: HTMLDivElement = Div.build(['metrage-output_header-value1']);
+      headerValue1.innerHTML = value1;
+      groupHeader.append(headerValue1);
+    }
+    if (value2) {
+      let headerValue2: HTMLDivElement = Div.build(['metrage-output_header-value2']);
+      headerValue2.innerHTML = value2;
+      groupHeader.append(headerValue2);
+    }
+    return groupHeader;
   }
+}
 
-  build(): HTMLDivElement {
-    const stackDiv: HTMLDivElement = Div.build(['stack']);
-    this.stack.forEach(function (itemRow: MetrageItemRow): void {
-      stackDiv.append(itemRow.build());
-    });
-    return stackDiv;
+export class MetrageTotalRow {
+  static build(title: string, value1: number | string | null = null, value2: number | string | null = null): HTMLDivElement {
+    let groupHeader: HTMLDivElement = Div.build(['metrage-output_group-total']);
+    let headerName: HTMLDivElement = Div.build(['metrage-output_item-name']);
+    headerName.innerHTML = title;
+    groupHeader.append(headerName);
+    if (value1) {
+      let headerValue1: HTMLDivElement = Div.build(['metrage-output_item-value1']);
+      headerValue1.innerHTML = value1.toString();
+      groupHeader.append(headerValue1);
+    }
+    if (value2) {
+      let headerValue2: HTMLDivElement = Div.build(['metrage-output_item-value2']);
+      headerValue2.innerHTML = value2.toString();
+      groupHeader.append(headerValue2);
+    }
+    return groupHeader;
   }
+}
 
-  append(itemRow: MetrageItemRow): void {
-    this.stack.push(itemRow);
+export class MetrageItemRow {
+  static build(title: string, value1: number | string | null = null, value2: number | string | null = null): HTMLDivElement {
+    let groupHeader: HTMLDivElement = Div.build(['metrage-output_item']);
+    let itemName: HTMLDivElement = Div.build(['metrage-output_item-name']);
+    itemName.innerHTML = title;
+    groupHeader.append(itemName);
+    if (value1) {
+      let headerValue1: HTMLDivElement = Div.build(['metrage-output_item-value1']);
+      headerValue1.innerHTML = value1.toString();
+      groupHeader.append(headerValue1);
+    }
+    if (value2) {
+      let headerValue2: HTMLDivElement = Div.build(['metrage-output_item-value2']);
+      headerValue2.innerHTML = value2.toString();
+      groupHeader.append(headerValue2);
+    }
+    return groupHeader;
   }
 }
 
@@ -164,6 +154,49 @@ export class DropDown {
 
   setName(name: string): void {
     this.dropDownTitleDiv.textContent = name;
+  }
+}
+
+export class MetrageTitle {
+  static build(name: string, value: number | string | null = null): HTMLDivElement {
+    let titleItem: HTMLDivElement = Div.build(['metrage-output_title-item']);
+    let titleName: HTMLDivElement = Div.build(['metrage-output_title-name']);
+    titleName.innerHTML = name;
+    titleItem.append(titleName);
+    if (value) {
+      let titleValue: HTMLDivElement = Div.build(['metrage-output_title-value']);
+      titleValue.innerHTML = value.toString();
+      titleItem.append(titleValue);
+    }
+    return titleItem;
+  }
+}
+
+export class MetrageItem {
+  static build(name: string, value1: string | null = null, value2: string | null = null): HTMLDivElement {
+    let titleItem: HTMLDivElement = Div.build(['metrage-output_title-item']);
+    let titleName: HTMLDivElement = Div.build(['metrage-output_title-name']);
+    titleName.innerHTML = name;
+    titleItem.append(titleName);
+    if (value1) {
+      let titleValue1: HTMLDivElement = Div.build(['metrage-output_title-value1']);
+      titleValue1.innerHTML = value1;
+      titleItem.append(titleValue1);
+    }
+    if (value2) {
+      let titleValue2: HTMLDivElement = Div.build(['metrage-output_title-value2']);
+      titleValue2.innerHTML = value2;
+      titleItem.append(titleValue2);
+    }
+    return titleItem;
+  }
+}
+
+export class Divider {
+  static build(): HTMLDivElement {
+    let wrap: HTMLDivElement = Div.build(['metrage-ouput_divider-wrap']);
+    wrap.append(Div.build(['metrage-ouput_divider']));
+    return wrap;
   }
 }
 

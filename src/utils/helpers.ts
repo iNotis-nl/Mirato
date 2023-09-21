@@ -1,4 +1,4 @@
-import {Img} from "$utils/html";
+import {Div, Img} from "$utils/html";
 
 export function parseIntOrZero(v: string): number {
   const i: number = parseInt(v);
@@ -15,6 +15,14 @@ export function ucFirst(s: string): string {
 export function ratio(numWorkplaces: number, numEmployees: number): string {
   const ratio: number = Math.round((numEmployees == 0 ? 0 : numWorkplaces / numEmployees) * 100);
   return ratio + '%';
+}
+
+export function m2Sup():string {
+  return 'M<sup>2</sup>'
+}
+
+export function pageBreak():HTMLDivElement {
+  return Div.build(['page-break'], {'style': 'page-break-after:always;'})
 }
 
 export function getIndex(l: string[]): number {
