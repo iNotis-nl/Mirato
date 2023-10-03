@@ -1,5 +1,16 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.0
+
+### Minor Changes
+
+- fab4c10: Refactored all comments from Mirato
+
+### Patch Changes
+
+- 8611661: Fixing the rollout, part 2
+- 95a785a: Fixing the rollout
+
 ## 0.6.0
 
 ### Minor Changes
