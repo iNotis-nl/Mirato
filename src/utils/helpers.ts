@@ -1,4 +1,6 @@
 import {Div, Img} from "$utils/html";
+// @ts-ignore
+import Fraction from './fractions.js';
 
 export function parseIntOrZero(v: string): number {
   const i: number = parseInt(v);
@@ -17,11 +19,21 @@ export function ratio(numWorkplaces: number, numEmployees: number): string {
   return ratio + '%';
 }
 
-export function m2Sup():string {
+export function fraction(numWorkplaces: number, numEmployees: number):string{
+  console.log('fraction',numWorkplaces,numEmployees);
+  if(numEmployees == 0) {
+    return '0';
+  }
+  const ratio: number = ((numEmployees == 0 ? 0 : numWorkplaces / numEmployees) * 100) / 100;
+  let frac = new Fraction(ratio);
+  return frac.toFraction(false);
+}
+
+export function m2Sup(): string {
   return 'M<sup>2</sup>'
 }
 
-export function pageBreak():HTMLDivElement {
+export function pageBreak(): HTMLDivElement {
   return Div.build(['page-break'], {'style': 'page-break-after:always;'})
 }
 
@@ -56,13 +68,33 @@ export function createRandom(length: number): string {
   return rand.substring(0, length);
 }
 
-export function TooltipIcon(tooltip: string): HTMLImageElement {
-  const src: string = 'https://uploads-ssl.webflow.com/62691a9a7781f77d01732f92/6409d1826dd2b4aec44b4b00_info_FILL0_wght500_GRAD-25_opsz20.svg';
-  return Img.build(src, ['tooltip-icon'], {
+export function TooltipIcon(tooltip: string | undefined = undefined): HTMLImageElement {
+  const src: string = '<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" xml:space="preserve"><path xmlns="http://www.w3.org/2000/svg" d="M9.229 13.979h1.563V9.021H9.229ZM10 7.688q.333 0 .573-.23.239-.229.239-.583 0-.333-.229-.573-.229-.24-.583-.24-.333 0-.573.23-.239.229-.239.583 0 .333.229.573.229.24.583.24Zm0 10.27q-1.646 0-3.094-.625t-2.531-1.708q-1.083-1.083-1.708-2.531-.625-1.448-.625-3.094 0-1.667.625-3.104.625-1.438 1.708-2.521t2.531-1.708Q8.354 2.042 10 2.042q1.667 0 3.104.625 1.438.625 2.521 1.708t1.708 2.531q.625 1.448.625 3.094t-.625 3.094q-.625 1.448-1.708 2.531-1.083 1.083-2.531 1.708-1.448.625-3.094.625Zm0-1.625q2.646 0 4.49-1.843 1.843-1.844 1.843-4.49T14.49 5.51Q12.646 3.667 10 3.667T5.51 5.51Q3.667 7.354 3.667 10t1.843 4.49q1.844 1.843 4.49 1.843ZM10 10Z"/></svg>';
+  let attr: Object = {
     'loading': 'lazy',
     'alt': '',
-    'title': tooltip,
-  });
+    'style': 'width:20px;height:20px'
+  };
+  if (tooltip) {
+    // @ts-ignore
+    attr['data-tippy-content'] = tooltip
+  }
+  return Img.build('data:image/svg+xml,' + escape(src), ['tooltip-icon'], attr);
+}
+
+export function DeleteIcon(tooltip: string | undefined = undefined): HTMLImageElement {
+  const src: string = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM8 9H16V19H8V9ZM15.5 4L14.5 3H9.5L8.5 4H5V6H19V4H15.5Z" fill="white"/></svg>';
+  let attr: Object = {
+    'loading': 'lazy',
+    'alt': '',
+    'class': 'delete-icon',
+    'style': 'width:20px;height:20px'
+  };
+  if (tooltip) {
+    // @ts-ignore
+    attr['data-tippy-content'] = tooltip
+  }
+  return Img.build('data:image/svg+xml,' + escape(src), ['tooltip-icon'], attr);
 }
 
 export class Facility {
@@ -75,7 +107,8 @@ export class Facility {
   constructor(name: string,
               active: boolean,
               callbackForM2: (subtotalM3: number,
-                              numWorkstations: number) => number,
+                              numWorkstations: number,
+                              numExtraPlaces: number) => number,
               readonly: boolean = false,
               tooltip: string = ''
   ) {

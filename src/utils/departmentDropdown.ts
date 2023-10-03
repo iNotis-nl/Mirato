@@ -14,11 +14,11 @@ export class DepartmentDropdown {
 
   constructor(department: Department) {
     // @ts-ignore
-    this.id = createId('department');
+    this.id = department.id;
     this.department = department;
     this.name = 'Afdeling';
     this.nameInput = new InputFormField();
-    this.dropDown = new DropDown();
+    this.dropDown = new DropDown(this.id);
   }
 
   build(): HTMLDivElement {
