@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.1
+
+### Patch Changes
+
+- 8d6bf13: Made Extra rooms separate again. Some small fixes
+
 ## 0.7.0
 
 ### Minor Changes
