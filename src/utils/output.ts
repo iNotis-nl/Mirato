@@ -14,7 +14,7 @@ import {
 import {Div} from "$utils/html";
 import type {Department} from "$utils/department";
 import type {Facility} from "$utils/helpers";
-import {fraction, m2Sup, MeetingRoom, pageBreak, ratio} from "$utils/helpers";
+import {ExtraRoom, fraction, m2Sup, MeetingRoom, pageBreak, ratio} from "$utils/helpers";
 import {getOfficeLayoutChoice} from "$utils/inputs";
 import tippy from "tippy.js";
 import 'tippy.js/themes/light-border.css';
@@ -256,16 +256,15 @@ export class Output {
       ///////////////////////// Extra Rooms ////////////////////////
       //////////////////////////////////////////////////////////////
       console.log('Building Extra Rooms');
-      let extraRoomsList: Facility[] = window.Form?.extraRoomsLayout.list() ?? [];
-      console.log(extraRoomsList.length);
+      let extraRoomsList: ExtraRoom[] = window.Form?.extraRoomsLayout.list() ?? [];
       if (extraRoomsList.length > 0) {
         // @ts-ignore
-        extraRoomsSubTotalM2 = window.Form?.extraRoomsLayout.totalM2(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+        extraRoomsSubTotalM2 = window.Form?.extraRoomsLayout.totalM2();
         group = MetrageOutputGroup.build();
         group.append(MetrageHeaderRow.build('Extra ruimtes', m2Sup()));
-        extraRoomsList.forEach((item: Facility): void => {
+        extraRoomsList.forEach((item: ExtraRoom): void => {
           if (item.active) {
-            group.append(MetrageItemRow.build(item.name, '', item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces)));
+            group.append(MetrageItemRow.build(item.name, '', item.callbackFn()));
           }
         });
         group.append(Divider.build());

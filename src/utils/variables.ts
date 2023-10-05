@@ -1,5 +1,15 @@
 import {CheckboxLabel, Div, Input} from "$utils/html";
-import {Facility, fraction, getIndex, MeetingRoom, parseIntOrZero, ratio, TooltipIcon} from "$utils/helpers";
+import {
+  ExtraRoom,
+  Facility,
+  fraction,
+  getIndex,
+  m2Sup,
+  MeetingRoom,
+  parseIntOrZero,
+  ratio,
+  TooltipIcon
+} from "$utils/helpers";
 import {
   InputFormField,
   MetrageInputGroup,
@@ -707,7 +717,7 @@ export class ExtraRoomsLayout {
   private readonly inputM2: HTMLInputElement;
   private readonly formButton: HTMLAnchorElement;
 
-  private defaults: Facility[] = [];
+  private defaults: ExtraRoom[] = [];
 
   constructor() {
     this.stack = Div.build(['stack']);
@@ -729,11 +739,8 @@ export class ExtraRoomsLayout {
     this.formButton.text = 'Ruimte toevoegen';
     this.formButton.onclick = (): void => {
       if (this.inputName.value !== '' && this.inputM2.value !== '') {
-        let label: string = this.inputName.value + ' (' + parseInt(this.inputM2.value) + 'm²)';
         let value: number = parseInt(this.inputM2.value);
-        this.defaults.push(new Facility(label, true, () => {
-          return value;
-        }));
+        this.defaults.push(new ExtraRoom(this.inputName.value, value));
         this.inputName.value = '';
         this.inputM2.value = '';
         this.rebuildCheckboxes();
@@ -744,23 +751,23 @@ export class ExtraRoomsLayout {
     this.rebuildCheckboxes();
   }
 
-  list(): Facility[] {
+  list(): ExtraRoom[] {
     return this.defaults;
   }
 
-  totalM2(subtotalM3: number, numWorkspaces: number, numExtraPlaces: number): number {
+  totalM2(): number {
     let totalM2: number = 0;
-    this.defaults.forEach((facility: Facility): void => {
-      if (facility.active) {
-        totalM2 += facility.callbackFn(subtotalM3, numWorkspaces, numExtraPlaces);
+    this.defaults.forEach((extraRoom: ExtraRoom): void => {
+      if (extraRoom.active) {
+        totalM2 += extraRoom.callbackFn();
       }
     })
     return totalM2;
   }
 
   rebuildCheckboxes():void {
-    this.defaults.forEach((item: Facility, i: number): void => {
-      let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
+    this.defaults.forEach((item: ExtraRoom, i: number): void => {
+      let el: HTMLLabelElement = CheckboxLabel.build(item.name + ' ('+item.m2+m2Sup()+')', '1', item.active, ['index-' + i]);
       el.onchange = (e: Event): void => {
         let target: HTMLInputElement = e.target as HTMLInputElement;
         let active: boolean = target.checked;
@@ -768,10 +775,6 @@ export class ExtraRoomsLayout {
         this.defaults[index].active = active;
         window.Output?.reset();
       };
-      if (item.tooltip) {
-        let tooltip: HTMLElement = TooltipIcon(item.tooltip);
-        el.append(tooltip);
-      }
       this.checkboxStack.append(el);
     });
   }
