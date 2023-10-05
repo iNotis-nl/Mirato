@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.2
+
+### Patch Changes
+
+- a9b958b: change extra-rooms labels
+
 ## 0.7.1
 
 ### Patch Changes
