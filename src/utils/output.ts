@@ -17,6 +17,7 @@ import type {Facility} from "$utils/helpers";
 import {fraction, m2Sup, MeetingRoom, pageBreak, ratio} from "$utils/helpers";
 import {getOfficeLayoutChoice} from "$utils/inputs";
 import tippy from "tippy.js";
+import 'tippy.js/themes/light-border.css';
 
 
 export class Output {
@@ -92,6 +93,7 @@ export class Output {
     let meetingRoomSubTotalM2: number = 0;
     let meetingRoomNumTotal: number = 0;
     let facilitiesSubTotalM2: number = 0;
+    let extraRoomsSubTotalM2: number = 0;
     let otherRoomsSubTotalM2: number = 0;
 
     let subTotal: number = 0;
@@ -251,6 +253,31 @@ export class Output {
 
     {
       //////////////////////////////////////////////////////////////
+      ///////////////////////// Extra Rooms ////////////////////////
+      //////////////////////////////////////////////////////////////
+      console.log('Building Extra Rooms');
+      let extraRoomsList: Facility[] = window.Form?.extraRoomsLayout.list() ?? [];
+      console.log(extraRoomsList.length);
+      if (extraRoomsList.length > 0) {
+        // @ts-ignore
+        extraRoomsSubTotalM2 = window.Form?.extraRoomsLayout.totalM2(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+        group = MetrageOutputGroup.build();
+        group.append(MetrageHeaderRow.build('Extra ruimtes', m2Sup()));
+        extraRoomsList.forEach((item: Facility): void => {
+          if (item.active) {
+            group.append(MetrageItemRow.build(item.name, '', item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces)));
+          }
+        });
+        group.append(Divider.build());
+        group.append(MetrageTotalRow.build('Totaal', extraRoomsSubTotalM2));
+        this.formContent.append(group);
+        // @ts-ignore
+        subTotal += extraRoomsSubTotalM2;
+      }
+    }
+
+    {
+      //////////////////////////////////////////////////////////////
       ///////////////////////// Other Rooms ////////////////////////
       //////////////////////////////////////////////////////////////
       console.log('Building Other Rooms');
@@ -288,7 +315,11 @@ export class Output {
     }
 
     this.formContent.append(MetrageTitle.build('Totaal ' + m2Sup(), total));
-    tippy('[data-tippy-content]');
+    tippy('[data-tippy-content]', {
+      placement: 'auto-start',
+      arrow: false,
+      theme: 'light-border'
+    });
 
     console.log(' ');
   }

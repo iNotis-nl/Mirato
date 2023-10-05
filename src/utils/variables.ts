@@ -261,7 +261,7 @@ export class ExtraPlacesLayout {
 
     this.infoTotalWorkplaces.innerHTML = '';
     this.infoTotalWorkplaces.append(MetrageInputItem.build('Totaal aantal vaste werkplekken:', numWorkplaces));
-    this.infoTotalWorkplaces.append(MetrageInputItem.build('Werkplekratio:', ratio(numWorkplaces, numEmployees), null, tooltip));
+    this.infoTotalWorkplaces.append(MetrageInputItem.build('Werkplek ratio:', ratio(numWorkplaces, numEmployees), null, tooltip));
   }
 }
 
@@ -423,18 +423,18 @@ export class FacilitiesLayout {
   private defaults: Facility[] = [
     new Facility('Toiletten', true, (subtotalM3: number, numWorkstations: number, numExtraPlaces: number): number => {
       if ((numWorkstations + numExtraPlaces) > 0) {
-        console.log(' - Toiletten = 5.5m² *', (1 + Math.floor((numWorkstations + numExtraPlaces) / 25)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Toiletten = 5.5m² *', (1 + Math.floor((numWorkstations + numExtraPlaces) / 26)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(5.5 * (1 + Math.floor((numWorkstations + numExtraPlaces) / 25)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(5.5 * (1 + Math.floor((numWorkstations + numExtraPlaces) / 26)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false, 'Verplichte voorziening conform ARBO norm: 2 toiletten per 30 personen'),
 
     new Facility('MIVA', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - MIVA = 3.7m² *', (1 + Math.floor(((numWorkstations / 25) * 2) / 10)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - MIVA = 3.7m² *', (1 + Math.floor(((numWorkstations / 26) * 2) / 10)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(3.7 * (1 + Math.floor(((numWorkstations / 25) * 2) / 10)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(3.7 * (1 + Math.floor(((numWorkstations / 26) * 2) / 10)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false, 'Mindervalide toilet: verplichte individuele voorziening conform de ARBO norm, tenzij deze in een verzamelgebouw als algemene voorziening aanwezig is'),
@@ -450,18 +450,18 @@ export class FacilitiesLayout {
 
     new Facility('Kolfruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Kolfruimte = 5m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Kolfruimte = 5m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(5 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(5 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false, 'Verplichte voorziening conform ARBO norm'),
 
     new Facility('Bidruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Bidruimte = 6m² *', (1 + Math.floor(numWorkstations / 80)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Bidruimte = 6m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 80)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false, 'Verplichte voorziening conform ARBO norm'),
@@ -477,27 +477,27 @@ export class FacilitiesLayout {
 
     new Facility('Serverruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Serverruimte = 6m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Serverruimte = 6m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(numWorkstations * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(numWorkstations * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
 
     new Facility('Opslagruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Opslagruimte = 20m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Opslagruimte = 20m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(20 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(20 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false),
 
     new Facility('Schoonmaakhok', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Schoonmaakhok = 6m² *', 1 + (Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Schoonmaakhok = 6m² *', 1 + (Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false),
@@ -522,9 +522,9 @@ export class FacilitiesLayout {
 
     new Facility('Pantry / Koffiecorner', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Pantry / Koffiecorner = 15m² *', (1 + Math.floor(numWorkstations / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Pantry / Koffiecorner = 15m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
@@ -540,9 +540,9 @@ export class FacilitiesLayout {
 
     new Facility('Lounge', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
-        console.log(' - Lounge = 15m² *', (1 + Math.floor(numWorkstations / 100)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Lounge = 15m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 100)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(15 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
@@ -567,9 +567,9 @@ export class FacilitiesLayout {
 
     new Facility('Douches', false, (subtotalM3: number, numWorkstations: number, numExtraPlaces: number): number => {
       if ((numWorkstations + numExtraPlaces) > 0) {
-        console.log(' - Douches = 10m² *', 1 + (Math.floor((numWorkstations + numExtraPlaces) / 50)), '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Douches = 10m² *', 1 + (Math.floor((numWorkstations + numExtraPlaces) / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(10 * (1 + Math.floor((numWorkstations + numExtraPlaces) / 50)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(10 * (1 + Math.floor((numWorkstations + numExtraPlaces) / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }, false, 'Douches 10m2 per 50 personen voorzien voor m/v/x'),
@@ -618,7 +618,7 @@ export class FacilitiesLayout {
         window.Output?.reset();
       };
       if (item.tooltip) {
-        let tooltip: HTMLImageElement = TooltipIcon(item.tooltip);
+        let tooltip: HTMLElement = TooltipIcon(item.tooltip);
         el.append(tooltip);
       }
       this.formField.append(el);
@@ -629,7 +629,7 @@ export class FacilitiesLayout {
 }
 
 export class OtherRoomsLayout {
-  private name: string = 'Overige ruimtes';
+  private name: string = 'Overige';
   private readonly stack: HTMLDivElement;
   private readonly formField: HTMLDivElement;
 
@@ -663,12 +663,6 @@ export class OtherRoomsLayout {
     this.stack.append(this.formField);
   }
 
-  add(extraRoom: Facility): void {
-    this.defaults.push(extraRoom);
-    window.Output?.reset();
-    window.Form?.init();
-  }
-
   list(): Facility[] {
     return this.defaults;
   }
@@ -695,7 +689,7 @@ export class OtherRoomsLayout {
         window.Output?.reset();
       };
       if (item.tooltip) {
-        let tooltip: HTMLImageElement = TooltipIcon(item.tooltip);
+        let tooltip: HTMLElement = TooltipIcon(item.tooltip);
         el.append(tooltip);
       }
       this.formField.append(el);
@@ -708,18 +702,20 @@ export class OtherRoomsLayout {
 export class ExtraRoomsLayout {
   private name: string = 'Extra ruimtes';
   private readonly stack: HTMLDivElement;
+  private readonly checkboxStack:HTMLDivElement;
   private readonly inputName: HTMLInputElement;
   private readonly inputM2: HTMLInputElement;
   private readonly formButton: HTMLAnchorElement;
 
+  private defaults: Facility[] = [];
+
   constructor() {
     this.stack = Div.build(['stack']);
-    let heading: HTMLDivElement = Div.build(['heading-small']);
-    heading.innerText = this.name;
-    let tooltip: HTMLImageElement = TooltipIcon('Voeg hier indien gewenst een extra ruimte toe met daarbij de benodigde m²');
-    heading.append(tooltip);
+    let heading: HTMLDivElement = MetrageInputHeaderRow.build(this.name,'Voeg hier indien gewenst een extra ruimte toe met daarbij de benodigde m²');
     this.stack.append(heading);
 
+    this.checkboxStack = Div.build(['metrage_extra-room', 'checkboxes']);
+    this.stack.append(this.checkboxStack);
     let extraRooms: HTMLDivElement = Div.build(['metrage_extra-room']);
     this.stack.append(extraRooms);
 
@@ -735,14 +731,49 @@ export class ExtraRoomsLayout {
       if (this.inputName.value !== '' && this.inputM2.value !== '') {
         let label: string = this.inputName.value + ' (' + parseInt(this.inputM2.value) + 'm²)';
         let value: number = parseInt(this.inputM2.value);
-        window.Form?.otherRoomsLayout.add(new Facility(label, true, () => {
+        this.defaults.push(new Facility(label, true, () => {
           return value;
         }));
         this.inputName.value = '';
         this.inputM2.value = '';
+        this.rebuildCheckboxes();
+        window.Output?.reset();
       }
     };
     extraRooms.append(this.formButton);
+    this.rebuildCheckboxes();
+  }
+
+  list(): Facility[] {
+    return this.defaults;
+  }
+
+  totalM2(subtotalM3: number, numWorkspaces: number, numExtraPlaces: number): number {
+    let totalM2: number = 0;
+    this.defaults.forEach((facility: Facility): void => {
+      if (facility.active) {
+        totalM2 += facility.callbackFn(subtotalM3, numWorkspaces, numExtraPlaces);
+      }
+    })
+    return totalM2;
+  }
+
+  rebuildCheckboxes():void {
+    this.defaults.forEach((item: Facility, i: number): void => {
+      let el: HTMLLabelElement = CheckboxLabel.build(item.name, '1', item.active, ['index-' + i], item.readonly);
+      el.onchange = (e: Event): void => {
+        let target: HTMLInputElement = e.target as HTMLInputElement;
+        let active: boolean = target.checked;
+        let index: number = getIndex(el.classList.toString().split(' '));
+        this.defaults[index].active = active;
+        window.Output?.reset();
+      };
+      if (item.tooltip) {
+        let tooltip: HTMLElement = TooltipIcon(item.tooltip);
+        el.append(tooltip);
+      }
+      this.checkboxStack.append(el);
+    });
   }
 
   build(): HTMLDivElement {

@@ -84,7 +84,7 @@ export class MetrageInputSubHeaderRow {
 
 export class MetrageOutputSubHeaderRow {
   static build(title: string, value1: string | null = null, value2: string | null = null): HTMLDivElement {
-    let groupHeader: HTMLDivElement = Div.build(['metrage-output_group']);
+    let groupHeader: HTMLDivElement = Div.build(['metrage-output_group-subheader']);
     let headerName: HTMLDivElement = Div.build(['metrage-output_subheader-name']);
     headerName.innerHTML = title;
     groupHeader.append(headerName);
@@ -196,10 +196,13 @@ export class DropDown {
 
   build(): HTMLDivElement {
     // DropDown
-    const dropDown: HTMLDivElement = Div.build(['fs_accordion-2_item'], {'fs-accordion-element': 'accordion', 'data-delete-id':this.deleteId});
+    const dropDown: HTMLDivElement = Div.build(['fs_accordion-2_item'], {
+      'fs-accordion-element': 'accordion',
+      'data-delete-id': this.deleteId
+    });
 
     // Header/Name
-    const dropDownTitle: HTMLDivElement = Div.build(['fs_accordion-2_header'], {
+    const dropDownTitle: HTMLDivElement = Div.build(['fs_accordion-2_header', 'metrage'], {
       'role': 'button',
       'id': this.id + '-header',
       'aria-controls': this.id + '-content',
@@ -215,7 +218,7 @@ export class DropDown {
     const dropDownArrow: HTMLDivElement = Div.build(['fs_accordion-2_arrow-wrapper'], {'fs-accordion-element': 'arrow'});
     dropDownTitle.append(dropDownArrow);
 
-    const deleteIcon: HTMLImageElement = DeleteIcon();
+    const deleteIcon: HTMLElement = DeleteIcon();
     deleteIcon.addEventListener('click', () => window.Form?.removeDepartmentAction(this.deleteId));
     dropDownTitle.append(deleteIcon);
 
@@ -223,7 +226,7 @@ export class DropDown {
     dropDownArrow.append(dropDownArrowIcon);
 
     // Content Box
-    const dropdownContent: HTMLDivElement = Div.build(['fs_accordion-2_content'], {
+    const dropdownContent: HTMLDivElement = Div.build(['fs_accordion-2_content', 'metrage'], {
       'id': this.id + '-content',
       'aria-labelledby': this.id + '-header',
       'fs-accordion-element': 'content'

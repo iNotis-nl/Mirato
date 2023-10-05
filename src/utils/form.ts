@@ -67,8 +67,8 @@ export class Form {
     form.append(this.extraPlacesLayout.build());
     form.append(this.meetingSpaceLayout.build());
     form.append(this.facilitiesLayout.build());
-    form.append(this.otherRoomsLayout.build());
     form.append(this.extraRoomsLayout.build());
+    form.append(this.otherRoomsLayout.build());
 
     this.addDepartmentBtn.removeEventListener('click', this.addDepartmentAction);
     this.addDepartmentBtn.addEventListener('click', this.addDepartmentAction);
