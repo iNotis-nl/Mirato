@@ -449,15 +449,6 @@ export class FacilitiesLayout {
       return 0;
     }, false, 'Mindervalide toilet: verplichte individuele voorziening conform de ARBO norm, tenzij deze in een verzamelgebouw als algemene voorziening aanwezig is'),
 
-    new Facility('Garderobe', true, (subtotalM3: number, numWorkstations: number): number => {
-      if (numWorkstations > 0) {
-        console.log(' - Garderobe = 0.05m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
-        // @ts-ignore
-        return Math.ceil(numWorkstations * 0.05 * window.Form?.officeLayout?.multiplier);
-      }
-      return 0;
-    }),
-
     new Facility('Kolfruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
         console.log(' - Kolfruimte = 5m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
@@ -476,7 +467,16 @@ export class FacilitiesLayout {
       return 0;
     }, false, 'Verplichte voorziening conform ARBO norm'),
 
-    new Facility('Repro', true, (subtotalM3: number, numWorkstations: number): number => {
+    new Facility('Garderobe', false, (subtotalM3: number, numWorkstations: number): number => {
+      if (numWorkstations > 0) {
+        console.log(' - Garderobe = 0.05m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
+        // @ts-ignore
+        return Math.ceil(numWorkstations * 0.05 * window.Form?.officeLayout?.multiplier);
+      }
+      return 0;
+    }),
+
+    new Facility('Repro', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
         console.log(' - Repro = 0.2m² *', numWorkstations, '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
@@ -485,7 +485,7 @@ export class FacilitiesLayout {
       return 0;
     }),
 
-    new Facility('Serverruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+    new Facility('Serverruimte', false, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
         console.log(' - Serverruimte = 6m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
@@ -494,7 +494,7 @@ export class FacilitiesLayout {
       return 0;
     }),
 
-    new Facility('Opslagruimte', true, (subtotalM3: number, numWorkstations: number): number => {
+    new Facility('Opslagruimte', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
         console.log(' - Opslagruimte = 20m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
@@ -503,7 +503,7 @@ export class FacilitiesLayout {
       return 0;
     }, false),
 
-    new Facility('Schoonmaakhok', true, (subtotalM3: number, numWorkstations: number): number => {
+    new Facility('Schoonmaakhok', false, (subtotalM3: number, numWorkstations: number): number => {
       if (numWorkstations > 0) {
         console.log(' - Schoonmaakhok = 6m² *', 1 + (Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
@@ -647,18 +647,18 @@ export class OtherRoomsLayout {
   private defaults: Facility[] = [
     new Facility('Verkeersruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Verkeersruimte = 15% * ', subtotalM3, '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Verkeersruimte = 15% * ', subtotalM3)
         // @ts-ignore
-        return subtotalM3 ? Math.ceil(subtotalM3 * 0.15 * window.Form?.officeLayout?.multiplier) : 0;
+        return subtotalM3 ? Math.ceil(subtotalM3 * 0.15) : 0;
       }
       return 0;
     }, true, '15% x totaal m²: verkeersruimte omvat loopruimte, trappen, gangen, liften en dergelijke'),
 
     new Facility('Gridloss', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Gridloss = 5% * ', subtotalM3, '*', window.Form?.officeLayout?.multiplier)
+        console.log(' - Gridloss = 5% * ', subtotalM3)
         // @ts-ignore
-        return Math.ceil(subtotalM3 * 0.05 * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(subtotalM3 * 0.05);
       }
       return 0;
     }, true, '5% x totaal m²: verlies op basis van stramienmaten en incourant vloeroppervlak'),
