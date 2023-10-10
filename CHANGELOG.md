@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.3
+
+### Patch Changes
+
+- 68ceda6: Small changes
+
 ## 0.7.2
 
 ### Patch Changes
