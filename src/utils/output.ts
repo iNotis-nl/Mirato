@@ -17,8 +17,6 @@ import type {Facility} from "$utils/helpers";
 import {ExtraRoom, fraction, m2Sup, MeetingRoom, pageBreak, ratio} from "$utils/helpers";
 import {getOfficeLayoutChoice} from "$utils/inputs";
 import tippy from "tippy.js";
-import 'tippy.js/themes/light-border.css';
-
 
 export class Output {
 
@@ -62,12 +60,12 @@ export class Output {
       // @ts-ignore
       const layout: DepartmentLayout = window.Form.globalDepartment.departmentLayout;
 
-      return layout.totalDepartmentWorkstations;
+      return layout.totalDepartmentPeople;
     } else if (this._mode === MODE_DEPARTMENT) {
       let totalDepartmentsWorkstations: number = 0;
       const departments: Department[] = window.Form?.departments ?? [];
       departments.forEach(function (department: Department): void {
-        totalDepartmentsWorkstations += department.departmentLayout.totalDepartmentWorkstations;
+        totalDepartmentsWorkstations += department.departmentLayout.totalDepartmentPeople;
       });
       return totalDepartmentsWorkstations;
     }
@@ -317,7 +315,8 @@ export class Output {
     tippy('[data-tippy-content]', {
       placement: 'auto-start',
       arrow: false,
-      theme: 'light-border'
+      trigger: 'mouseenter click',
+      theme: 'mirato'
     });
 
     console.log(' ');
