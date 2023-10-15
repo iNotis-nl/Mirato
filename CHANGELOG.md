@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.4
+
+### Patch Changes
+
+- cc53801: Fixed ServerRoom calc. Cleanup of console-output
+
 ## 0.7.3
 
 ### Patch Changes
