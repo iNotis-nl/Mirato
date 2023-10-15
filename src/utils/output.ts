@@ -128,12 +128,8 @@ export class Output {
       totalDepartmentsWorkstations = layout.totalDepartmentWorkstations;
       totalDepartmentPeople = layout.totalDepartmentPeople;
 
-      // @ts-ignore
-      departmentSubTotalM2 = window.Form.globalDepartment.departmentLayout.totalDepartmentM2;
+      departmentSubTotalM2 = this.addMetrageList(group, layout);
       subTotal += departmentSubTotalM2;
-
-      // @ts-ignore
-      this.addMetrageList(group, layout);
       if (totalExtraPlaces > 0) {
         group.append(MetrageItemRow.build('Aanlandplekken', totalExtraPlaces, totalExtraPlacesM2));
       }
@@ -154,11 +150,10 @@ export class Output {
         totalDepartmentsWorkstations += tempTotalDepartmentsNumber;
         totalDepartmentPeople += tempTotalDepartmentPeople;
 
-        departmentSubTotalM2 = department.departmentLayout.totalDepartmentM2;
+        group.append(MetrageInputSubHeaderRow.build(department.departmentLayout.name));
+        departmentSubTotalM2 = that.addMetrageList(group, department.departmentLayout);
         subTotal += departmentSubTotalM2;
 
-        group.append(MetrageInputSubHeaderRow.build(department.departmentLayout.name));
-        that.addMetrageList(group, department.departmentLayout);
         group.append(Divider.build());
         group.append(MetrageTotalRow.build('Totaal', departmentSubTotalM2.toString()));
       });
@@ -197,17 +192,17 @@ export class Output {
       /////////////////////// MeetingRooms ////////////////////////
       /////////////////////////////////////////////////////////////
       console.log('Building MeetingRooms');
-      // @ts-ignore
-      meetingRoomSubTotalM2 = window.Form?.meetingSpaceLayout.totalM2();
       let meetingRoomNumTotalPeople: number = 0;
       group = MetrageOutputGroup.build();
       group.append(MetrageHeaderRow.build('Vergaderen', 'Aantal', m2Sup()));
       let meetingsRoomList: MeetingRoom[] = window.Form?.meetingSpaceLayout.list() ?? [];
       meetingsRoomList.forEach((item: MeetingRoom): void => {
         if (item.amount > 0) {
+          let meetingRoomAdd: number = item.callbackFn(item.amount);
           meetingRoomNumTotalPeople += item.callbackForPeople(item.amount);
           meetingRoomNumTotal += item.amount;
-          group.append(MetrageItemRow.build(item.name, item.amount, item.callbackFn(item.amount)));
+          group.append(MetrageItemRow.build(item.name, item.amount, meetingRoomAdd));
+          meetingRoomSubTotalM2 += meetingRoomAdd;
         }
       });
       // @ts-ignore
@@ -227,19 +222,26 @@ export class Output {
 
     }
 
+    /////////////////////// PAGEBREAK ////////////////////////
+    // @ts-ignore
+    if ((window.Form?.facilitiesLayout.list().length + window.Form?.extraRoomsLayout.list().length) > 9) {
+      this.formContent.append(pageBreak());
+      document.getElementsByClassName('section is_tool-m2')[0].setAttribute('style', 'position:inherit');
+    }
+
     {
       /////////////////////////////////////////////////////////////
       //////////////////////// Facilities /////////////////////////
       /////////////////////////////////////////////////////////////
       console.log('Building Facilities');
-      // @ts-ignore;
-      facilitiesSubTotalM2 = window.Form?.facilitiesLayout.totalM2(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
       group = MetrageOutputGroup.build();
       group.append(MetrageHeaderRow.build('Faciliteiten', m2Sup()));
       let facilitiesList: Facility[] = window.Form?.facilitiesLayout.list() ?? [];
       facilitiesList.forEach((item: Facility): void => {
         if (item.active) {
-          group.append(MetrageItemRow.build(item.name, item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces)));
+          let facilityAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+          facilitiesSubTotalM2 += facilityAdd;
+          group.append(MetrageItemRow.build(item.name, facilityAdd));
         }
       });
       group.append(Divider.build());
@@ -256,13 +258,13 @@ export class Output {
       console.log('Building Extra Rooms');
       let extraRoomsList: ExtraRoom[] = window.Form?.extraRoomsLayout.list() ?? [];
       if (extraRoomsList.length > 0) {
-        // @ts-ignore
-        extraRoomsSubTotalM2 = window.Form?.extraRoomsLayout.totalM2();
         group = MetrageOutputGroup.build();
         group.append(MetrageHeaderRow.build('Extra ruimtes', m2Sup()));
         extraRoomsList.forEach((item: ExtraRoom): void => {
           if (item.active) {
-            group.append(MetrageItemRow.build(item.name, '', item.callbackFn()));
+            let extraRoomsAdd: number = item.callbackFn();
+            extraRoomsSubTotalM2 += extraRoomsAdd;
+            group.append(MetrageItemRow.build(item.name, '', extraRoomsAdd));
           }
         });
         group.append(Divider.build());
@@ -278,14 +280,14 @@ export class Output {
       ///////////////////////// Other Rooms ////////////////////////
       //////////////////////////////////////////////////////////////
       console.log('Building Other Rooms');
-      // @ts-ignore
-      otherRoomsSubTotalM2 = window.Form?.otherRoomsLayout.totalM2(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
       group = MetrageOutputGroup.build();
       group.append(MetrageHeaderRow.build('Overige', m2Sup()));
       let otherRoomsList: Facility[] = window.Form?.otherRoomsLayout.list() ?? [];
       otherRoomsList.forEach((item: Facility): void => {
         if (item.active) {
-          group.append(MetrageItemRow.build(item.name, '', item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces)));
+          let otherRoomsAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+          otherRoomsSubTotalM2 += otherRoomsAdd;
+          group.append(MetrageItemRow.build(item.name, '', otherRoomsAdd));
         }
       });
       group.append(Divider.build());
@@ -322,23 +324,42 @@ export class Output {
     console.log(' ');
   }
 
-  addMetrageList(outputGroup: HTMLDivElement, layout: DepartmentLayout): void {
+  addMetrageList(outputGroup: HTMLDivElement, layout: DepartmentLayout): number {
+    let departmentSubTotalM2: number = 0;
     if (layout.numWorkstations > 0) {
-      outputGroup.append(MetrageItemRow.build('Aantal open werkplekken', layout.numWorkstations, layout.numWorkstationsM2));
+      let openWorkStationAdd: number = layout.numWorkstationsM2;
+      departmentSubTotalM2 += openWorkStationAdd;
+      outputGroup.append(MetrageItemRow.build('Aantal open werkplekken', layout.numWorkstations, openWorkStationAdd));
     }
 
-    if (layout.totalPersonsRoomsM2 > 0) {
-      if (layout.numCEORooms > 0)
-        outputGroup.append(MetrageItemRow.build('Directie ruimtes', layout.numCEORooms, layout.numCEORoomsM2));
-      if (layout.num1PersonRooms)
-        outputGroup.append(MetrageItemRow.build('Kantoren - 1 persoon', layout.num1PersonRooms, layout.num1PersonRoomsM2));
-      if (layout.num2PersonRooms)
-        outputGroup.append(MetrageItemRow.build('Kantoren - 2 personen', layout.num2PersonRooms, layout.num2PersonRoomsM2));
-      if (layout.num4PersonRooms)
-        outputGroup.append(MetrageItemRow.build('Kantoren - 4 personen', layout.num4PersonRooms, layout.num4PersonRoomsM2));
-      if (layout.num6PersonRooms)
-        outputGroup.append(MetrageItemRow.build('Kantoren - 6 personen', layout.num6PersonRooms, layout.num6PersonRoomsM2));
+    if (layout.totalDepartmentWorkstations > 0) {
+      if (layout.numCEORooms > 0) {
+        let ceoWorkStationAdd: number = layout.numCEORoomsM2;
+        outputGroup.append(MetrageItemRow.build('Directie ruimtes', layout.numCEORooms, ceoWorkStationAdd));
+        departmentSubTotalM2 += ceoWorkStationAdd;
+      }
+      if (layout.num1PersonRooms) {
+        let office1PAdd: number = layout.num1PersonRoomsM2;
+        outputGroup.append(MetrageItemRow.build('Kantoren - 1 persoon', layout.num1PersonRooms, office1PAdd));
+        departmentSubTotalM2 += office1PAdd;
+      }
+      if (layout.num2PersonRooms) {
+        let office2PAdd: number = layout.num2PersonRoomsM2;
+        outputGroup.append(MetrageItemRow.build('Kantoren - 2 personen', layout.num2PersonRooms, office2PAdd));
+        departmentSubTotalM2 += office2PAdd;
+      }
+      if (layout.num4PersonRooms) {
+        let office4PAdd: number = layout.num4PersonRoomsM2;
+        outputGroup.append(MetrageItemRow.build('Kantoren - 4 personen', layout.num4PersonRooms, office4PAdd));
+        departmentSubTotalM2 += office4PAdd;
+      }
+      if (layout.num6PersonRooms) {
+        let office6PAdd: number = layout.num6PersonRoomsM2;
+        outputGroup.append(MetrageItemRow.build('Kantoren - 6 personen', layout.num6PersonRooms, office6PAdd));
+        departmentSubTotalM2 += office6PAdd;
+      }
     }
+    return departmentSubTotalM2;
   }
 }
 
