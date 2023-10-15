@@ -50,10 +50,6 @@ export class DepartmentLayout {
   num4PersonRooms: number = 0;
   num6PersonRooms: number = 0;
 
-  get totalDepartmentM2(): number {
-    return this.numWorkstationsM2 + this.totalPersonsRoomsM2;
-  }
-
   get totalDepartmentPeople(): number {
     return this.numWorkstations + this.numCEORooms + this.num1PersonRooms
       + (this.num2PersonRooms * 2) + (this.num4PersonRooms * 4)
@@ -118,14 +114,6 @@ export class DepartmentLayout {
       return Math.ceil(this.num6PersonRooms * 30 * window.Form?.officeLayout?.multiplier);
     }
     return 0;
-  }
-
-  get totalPersonsRoomsM2(): number {
-    return this.numCEORoomsM2 +
-      this.num1PersonRoomsM2 +
-      this.num2PersonRoomsM2 +
-      this.num4PersonRoomsM2 +
-      this.num6PersonRoomsM2;
   }
 }
 
@@ -341,7 +329,7 @@ export class MeetingSpaceLayout {
 
     new MeetingRoom('Aantal vergaderruimtes tot 50p', (amount: number): number => {
       if (amount > 0) {
-        console.log(' - 50-people conference = ', amount, '* 20 m² *', window.Form?.officeLayout?.multiplier);
+        console.log(' - 50-people conference = ', amount, '* 50 m² *', window.Form?.officeLayout?.multiplier);
         // @ts-ignore
         return Math.ceil(amount * 50 * window.Form?.officeLayout?.multiplier);
       }
@@ -489,7 +477,7 @@ export class FacilitiesLayout {
       if (subtotalM3 > 0) {
         console.log(' - Serverruimte = 6m² *', (1 + Math.floor(numWorkstations / 51)), '*', window.Form?.officeLayout?.multiplier)
         // @ts-ignore
-        return Math.ceil(numWorkstations * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
+        return Math.ceil(6 * (1 + Math.floor(numWorkstations / 51)) * window.Form?.officeLayout?.multiplier);
       }
       return 0;
     }),
@@ -647,7 +635,7 @@ export class OtherRoomsLayout {
   private defaults: Facility[] = [
     new Facility('Verkeersruimte', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Verkeersruimte = 15% * ', subtotalM3)
+        console.log(' - Verkeersruimte = 15% *', subtotalM3)
         // @ts-ignore
         return subtotalM3 ? Math.ceil(subtotalM3 * 0.15) : 0;
       }
@@ -656,7 +644,7 @@ export class OtherRoomsLayout {
 
     new Facility('Gridloss', true, (subtotalM3: number, numWorkstations: number): number => {
       if (subtotalM3 > 0) {
-        console.log(' - Gridloss = 5% * ', subtotalM3)
+        console.log(' - Gridloss = 5% *', subtotalM3)
         // @ts-ignore
         return Math.ceil(subtotalM3 * 0.05);
       }
