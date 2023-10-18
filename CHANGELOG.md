@@ -1,5 +1,11 @@
 # @inotis-nl/mirato-metrage
 
+## 0.7.5
+
+### Patch Changes
+
+- fc2a07b: Added constants for m2, changed some calculations
+
 ## 0.7.4
 
 ### Patch Changes
