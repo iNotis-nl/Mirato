@@ -239,7 +239,7 @@ export class Output {
       let facilitiesList: Facility[] = window.Form?.facilitiesLayout.list() ?? [];
       facilitiesList.forEach((item: Facility): void => {
         if (item.active) {
-          let facilityAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+          let facilityAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces, numEmployees);
           facilitiesSubTotalM2 += facilityAdd;
           group.append(MetrageItemRow.build(item.name, facilityAdd));
         }
@@ -285,7 +285,7 @@ export class Output {
       let otherRoomsList: Facility[] = window.Form?.otherRoomsLayout.list() ?? [];
       otherRoomsList.forEach((item: Facility): void => {
         if (item.active) {
-          let otherRoomsAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces);
+          let otherRoomsAdd: number = item.callbackFn(subTotal, totalDepartmentsWorkstations, totalExtraPlaces, numEmployees);
           otherRoomsSubTotalM2 += otherRoomsAdd;
           group.append(MetrageItemRow.build(item.name, '', otherRoomsAdd));
         }
