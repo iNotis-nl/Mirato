@@ -110,7 +110,8 @@ export class Facility {
               active: boolean,
               callbackForM2: (subtotalM3: number,
                               numWorkstations: number,
-                              numExtraPlaces: number) => number,
+                              numExtraPlaces: number,
+                              numEmployees:number) => number,
               readonly: boolean = false,
               tooltip: string = ''
   ) {
